@@ -17,3 +17,24 @@ Files marked executable are sourced, while files *not* marked executable will be
 `$HISTFILE` is set to `$XDG_DATA_HOME/bash/history` instead of `~/.bash_history`
 
 It's not configuration, it's *data*.
+
+# Extras
+Some extra .bashrc files are included for convenience.
+
+## `config-manager-function.bashrc`
+A big ol' function that adds some quality of life quick access to working with this multi-bashrc system.
+
+This is not included in the main `.bashrc` to prevent clutter and bloat. Not everyone will need or want this, but it can be handy!
+
+For a list of available options, see `bashrc-config --help` after it has been sourced.
+
+## `alias-flatpak-exports.bashrc`
+Iterates through files in `/var/lib/flatpak/exports/bin` and attempts to alias them to logical command names if they're not already taken.
+
+If they **are** already taken, will attempt the long name (IE `tld.domain.app` instead of just `app`)
+
+If the long name is ALSO taken, then no alias is created.
+
+This is done for those who don't want to do `flatpak run tld.domain.app` so that you can just run `app`
+
+run `alias | grep 'flatpak'` after this file has been sourced to see aliases it created for you.
