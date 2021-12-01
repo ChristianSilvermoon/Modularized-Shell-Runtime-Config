@@ -63,3 +63,7 @@ This will **NOT** use `tyls` or `tycat` if:
 * You pipe `cat` or `ls` to another command or file
 * The `mimetype` command is unavailable or returns unexpected results
 * The `grep` command is unavailable
+
+## `terminology-batcat-extensions.bashrc`
+
+Identical to terminlogy-extentions, but will also always substitute `cat` for `batcat` if available, ensuring you get syntax highlighted text files.
