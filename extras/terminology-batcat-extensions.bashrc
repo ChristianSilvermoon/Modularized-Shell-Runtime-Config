@@ -60,4 +60,8 @@ if [ "$TERMINOLOGY" ]&&[ "$(command -v mimetype)" ]&&[ "$(command -v grep)" ]; t
 
 	alias ls="_terminology_ls_extension"
 	alias cat="_terminology_cat_extension"
+
+else
+	# Still alias batcat if available
+	[ "$(command -v batcat)" ] && alias cat="batcat"
 fi
