@@ -9,6 +9,9 @@ if [ "$TERMINOLOGY" ]&&[ "$(command -v mimetype)" ]&&[ "$(command -v grep)" ]; t
 	_terminology_ls_extension() {
 		local tyls_incomp
 
+		# Avoid tyls within GNU Screen (It doesn't work)
+		[ "${TERM:0:6}" = "screen" -o "$STY" ] && tyls_incomp=1
+
 		for a in "$@"; do
 			if [ "$(echo "$a" | grep "^-")" ]; then
 				# Argument starting with "-"
@@ -27,6 +30,9 @@ if [ "$TERMINOLOGY" ]&&[ "$(command -v mimetype)" ]&&[ "$(command -v grep)" ]; t
 
 	_terminology_cat_extension() {
 		local tycat_incomp
+
+		# Avoid tycat within GNU Screen (It doesn't work)
+		[ "${TERM:0:6}" = "screen" -o "$STY" ] && tycat_incomp=1
 
 		for a in "$@"; do
 			if [ "$(echo "$a" | grep "^-")" ]; then
