@@ -18,6 +18,13 @@ Files marked executable are sourced, while files *not* marked executable will be
 
 It's not configuration, it's *data*.
 
+## Configuration Manager
+You can manage your multiple `.bashrc` files quickly using the `bashrc` function built into this `.bashrc`
+
+Try out `bashrc --help` to see what all it can do!
+
+For those that used earlier versions of this project, this used to be an extra, but was moved into the main `.bashrc` for ease of use and convenience. It also now features tab completion!
+
 ## Extras
 Some extra .bashrc files are included for convenience.
 
@@ -42,13 +49,6 @@ go-r sensitive-file.txt
 chmod -x script.sh
 
 ```
-
-### `config-manager-function.bashrc`
-A big ol' function that adds some quality of life quick access to working with this multi-bashrc system.
-
-This is not included in the main `.bashrc` to prevent clutter and bloat. Not everyone will need or want this, but it can be handy!
-
-For a list of available options, see `bashrc-config --help` after it has been sourced.
 
 ### `alias-flatpak-exports.bashrc`
 Iterates through files in `/var/lib/flatpak/exports/bin` and attempts to alias them to logical command names if they're not already taken.
