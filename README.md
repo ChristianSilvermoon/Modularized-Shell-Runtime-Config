@@ -21,6 +21,28 @@ It's not configuration, it's *data*.
 # Extras
 Some extra .bashrc files are included for convenience.
 
+## `chmod-aliases.bashrc`
+This one creates an absurd number of aliases for `chmod` and basic letter permissions, allowing you to skip typing out `chmod`
+
+Important Notes:
+* This only applies for **read**, **write**, and **execute** permissions, and NOT **setuid**/**setgid**/**sticky**
+* You **MUST** specify in the correct order (`ugo+rwx`), but you can leave things out like this: `uo+rx`
+* You cannot specify multiple permissions (like `ug+x,o-rwx`), you must still use `chmod` for this!
+
+Examples
+```bash
+# Normally, you'd type:
+chmod +x script.sh
+chmod go-r senstive-file.txt
+chmod -x script.sh
+
+# With this, you get:
++x script.sh
+go-r sensitive-file.txt
+chmod -x script.sh
+
+```
+
 ## `config-manager-function.bashrc`
 A big ol' function that adds some quality of life quick access to working with this multi-bashrc system.
 
