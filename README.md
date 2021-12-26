@@ -2,7 +2,7 @@
 A bashrc that loads split components based on the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 Inspired by [Quentin ADAM on medium.com's post](https://medium.com/@waxzce/use-bashrc-d-directory-instead-of-bloated-bashrc-50204d5389ff)
 
-# Mutliple Toggle-able Configs
+## Mutliple Toggle-able Configs
 The `bashrc` here is meant to be placed in the traditional `~/.bashrc` location.
 
 From there, `$XDG_CONFIG_HOME/bash` is referenced.
@@ -13,15 +13,15 @@ Files marked executable are sourced, while files *not* marked executable will be
 
 `$XDG_CONFIG_HOME/bash/bash-completion` works exactly the same, but is inteaded for files containing completion scripts. This seperate directory essentially exists for the sake of organization.
 
-# History Relocated
+## History Relocated
 `$HISTFILE` is set to `$XDG_DATA_HOME/bash/history` instead of `~/.bash_history`
 
 It's not configuration, it's *data*.
 
-# Extras
+## Extras
 Some extra .bashrc files are included for convenience.
 
-## `chmod-aliases.bashrc`
+### `chmod-aliases.bashrc`
 This one creates an absurd number of aliases for `chmod` and basic letter permissions, allowing you to skip typing out `chmod`
 
 Important Notes:
@@ -43,14 +43,14 @@ chmod -x script.sh
 
 ```
 
-## `config-manager-function.bashrc`
+### `config-manager-function.bashrc`
 A big ol' function that adds some quality of life quick access to working with this multi-bashrc system.
 
 This is not included in the main `.bashrc` to prevent clutter and bloat. Not everyone will need or want this, but it can be handy!
 
 For a list of available options, see `bashrc-config --help` after it has been sourced.
 
-## `alias-flatpak-exports.bashrc`
+### `alias-flatpak-exports.bashrc`
 Iterates through files in `/var/lib/flatpak/exports/bin` and attempts to alias them to logical command names if they're not already taken.
 
 If they **are** already taken, will attempt the long name (IE `tld.domain.app` instead of just `app`)
@@ -61,7 +61,7 @@ This is done for those who don't want to do `flatpak run tld.domain.app` so that
 
 run `alias | grep 'flatpak'` after this file has been sourced to see aliases it created for you.
 
-## `terminology-extensions.bashrc`
+### `terminology-extensions.bashrc`
 If you're using [Terminology](https://github.com/borisfaure/terminology), the EFL-based Terminal Emulator...
 
 This will automatically substitute `ls` for `tyls` and `cat` for `tycat` when appropriate.
@@ -86,6 +86,6 @@ This will **NOT** use `tyls` or `tycat` if:
 * The `mimetype` command is unavailable or returns unexpected results
 * The `grep` command is unavailable
 
-## `terminology-batcat-extensions.bashrc`
+### `terminology-batcat-extensions.bashrc`
 
 Identical to terminlogy-extentions, but will also always substitute `cat` for `batcat` if available, ensuring you get syntax highlighted text files.
