@@ -2,6 +2,10 @@
 A bashrc that loads split components based on the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 Inspired by [Quentin ADAM on medium.com's post](https://medium.com/@waxzce/use-bashrc-d-directory-instead-of-bloated-bashrc-50204d5389ff)
 
+As a note, there is *no* strict garauntee that all of the *Extras* will be compatbile with all platforms.
+
+You should **always** review scripts from the internet before running them, the same goes for BASHRC files especially.
+
 ## Mutliple Toggle-able Configs
 The `bashrc` here is meant to be placed in the traditional `~/.bashrc` location.
 
@@ -28,6 +32,28 @@ For those that used earlier versions of this project, this used to be an extra, 
 ## Extras
 Some extra .bashrc files are included for convenience.
 
+### `alias-flatpak-exports.bashrc`
+Iterates through files in `/var/lib/flatpak/exports/bin` and attempts to alias them to logical command names if they're not already taken.
+
+If they **are** already taken, will attempt the long name (IE `tld.domain.app` instead of just `app`)
+
+If the long name is ALSO taken, then no alias is created.
+
+This is done for those who don't want to do `flatpak run tld.domain.app` so that you can just run `app`
+
+run `alias | grep 'flatpak'` after this file has been sourced to see aliases it created for you.
+
+### `cd_autopshd.bashrc`
+Overrides the `cd` command with a function that calls BASH's builtin `cd` command AND also pushs your new directory to the Directory Stack (See BaSh's Manual)
+
+This means using `cd` will automatically track the directories you've navigated with the Directory Stack, allowing you to quickly jump back to places
+you've already been to in the current instance of BASH using `cd ~4` for example, to jump to the 4th directory on the stack.
+
+To see the directories currently on your Directory Stack and their associated numbers, use `dirs -v`
+
+To remove the overide at runtime you can use `unset -f cd`
+To call BASH's *true* `cd` command and bypass the function just once, you can also use `builtin cd` instead of `cd`
+
 ### `chmod-aliases.bashrc`
 This one creates an absurd number of aliases for `chmod` and basic letter permissions, allowing you to skip typing out `chmod`
 
@@ -49,17 +75,6 @@ go-r sensitive-file.txt
 chmod -x script.sh
 
 ```
-
-### `alias-flatpak-exports.bashrc`
-Iterates through files in `/var/lib/flatpak/exports/bin` and attempts to alias them to logical command names if they're not already taken.
-
-If they **are** already taken, will attempt the long name (IE `tld.domain.app` instead of just `app`)
-
-If the long name is ALSO taken, then no alias is created.
-
-This is done for those who don't want to do `flatpak run tld.domain.app` so that you can just run `app`
-
-run `alias | grep 'flatpak'` after this file has been sourced to see aliases it created for you.
 
 ### `terminology-extensions.bashrc`
 If you're using [Terminology](https://github.com/borisfaure/terminology), the EFL-based Terminal Emulator...
