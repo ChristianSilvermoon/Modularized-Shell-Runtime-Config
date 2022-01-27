@@ -1,38 +1,44 @@
 #!/bin/bash
-# XDG BaseDir Spec Organized split BASH configuration
+# =========================================
+# Modularized Shell Runtime Configuration
+# GitHub: https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config 
+# =================================================================================
+# This is free and unencumbered software released into the public domain.
+# 
+# Anyone is free to copy, modify, publish, use, compile, sell, or
+# distribute this software, either in source code form or as a compiled
+# binary, for any purpose, commercial or non-commercial, and by any
+# means.
+# 
+# In jurisdictions that recognize copyright laws, the author or authors
+# of this software dedicate any and all copyright interest in the
+# software to the public domain. We make this dedication for the benefit
+# of the public at large and to the detriment of our heirs and
+# successors. We intend this dedication to be an overt act of
+# relinquishment in perpetuity of all present and future rights to this
+# software under copyright law.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+# 
+# For more information, please refer to <https://unlicense.org> 
+# =========================================
 
-# define XDG Variables if they aren't already set
-[ "$XDG_DATA_HOME" ] || XDG_DATA_HOME="$HOME/.local/share"
-[ "$XDG_CONFIG_HOME" ] || XDG_CONFIG_HOME="$HOME/.config"
-[ "$XDG_CACHE_HOME" ] || XDG_CACHE_HOME="$HOME/.cache"
-[ "$XDG_STATE_HOME" ] || XDG_STATE_HOME="$HOME/.local/state"
 
-# Create XDG Directories if missing
-[ -d "$XDG_DATA_HOME" ] || mkdir -p "$XDG_DATA_HOME"
-[ -d "$XDG_CONFIG_HOME" ] || mkdir -p "$XDG_CONFIG_HOME"
-[ -d "$XDG_CACHE_HOME" ] || mkdir -p "$XDG_CACHE_HOME"
-[ -d "$XDG_STATE_HOME" ] || mkdir -p "$XDG_STATE_HOME"
+# MSRC Directory Setup
+[ "$BASH_MSRC_DIR" ] || export BASH_MSRC_DIR="$HOME/.bashrc.d"
+[ -d "$BASH_MSRC_DIR" ] || mkdir -p "$BASH_MSRC_DIR" 
 
-
-# Create config directories if missing
-[ -d "$XDG_CONFIG_HOME/bash/bashrc" ] || mkdir -p "$XDG_CONFIG_HOME/bash/bashrc"
-[ -d "$XDG_CONFIG_HOME/bash/bash-completion" ] || mkdir -p "$XDG_CONFIG_HOME/bash/bash-completion"
-[ -d "$XDG_DATA_HOME/bash" ] || mkdir -p "$XDG_DATA_HOME/bash"
-
-# Relocate .bash_history to $XDG_DATA_HOME/bash/history
-HISTFILE="$XDG_DATA_HOME/bash/history"
-
-_bashrc() {
-	# Completion Script for bashrc command
-	local cur prev words cword
-	local config_dir="$XDG_CONFIG_HOME/bash/bashrc"
+# BASH Completion
+_msrc() {
+	# Completion Script for msrc command
+	local cur prev words cword f
 	_init_completion || return
-
-	#echo ""
-	#echo "cur: $cur"
-	#echo "prev: $prev"
-	#echo "words: $words"
-	#echo "cword: $cword"
 
 	if [ "$cword" = "1" ]; then
 		COMPREPLY=($(
@@ -46,7 +52,7 @@ _bashrc() {
 		-c|check|-e|edit|-r|rm|remove)
 			local scripts=""
 			
-			for f in "$config_dir"/*.bashrc; do
+			for f in "$BASH_MSRC_DIR"/*.bashrc; do
 				scripts+="$(basename "$f" | sed 's/\.bashrc$//g') "
 			done
 
@@ -59,7 +65,7 @@ _bashrc() {
 		-x|disable)
 			local scripts=""
 			
-			for f in "$config_dir"/*.bashrc; do
+			for f in "$BASH_MSRC_DIR"/*.bashrc; do
 				[ -x "$f" ] && scripts+="$(basename "$f" | sed 's/\.bashrc$//g') "
 			done
 
@@ -71,7 +77,7 @@ _bashrc() {
 			;;
 		+x|enable)
 			local scripts=""
-			for f in "$config_dir"/*.bashrc; do
+			for f in "$BASH_MSRC_DIR"/*.bashrc; do
 				[ ! -x "$f" ] && scripts+="$(basename "$f" | sed 's/\.bashrc$//g') "
 			done
 
@@ -86,13 +92,11 @@ _bashrc() {
 			return
 			;;
 	esac
-} && complete -F _bashrc bashrc
+} && complete -F _msrc msrc
 
 
-
-bashrc() {
-	local config_dir="$XDG_CONFIG_HOME/bash/bashrc"
-
+# MSRC Function
+msrc() {
 	case "$1" in
 		"new"|"-n")
 			if [ "$(echo "$2" | grep ".bashrc$")" ]; then
@@ -101,15 +105,15 @@ bashrc() {
 			elif [ "$(echo "$2" | grep "/")" ]; then
 				echo "You cannot use \"/\" in file names." 1>&2
 				return 1
-			elif [ -e "$config_dir/$2.bashrc" ]; then
+			elif [ -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
 				echo "The file \"$2.bashrc\" already exists! Please specify a different name." 1>&2
 				return 1
 			elif [ ! "$EDITOR" ]||[ ! "$(command -v "$EDITOR")" ]; then
 				echo "Ensure \"\$EDITOR\" is set to a valid command." 1>&2
 				return 1
 			else
-				echo -e "#!/bin/bash\n# New Bashrc\n" > "$config_dir/$2.bashrc"
-				$EDITOR "$config_dir/$2.bashrc"
+				echo -e "#!/bin/bash\n# New Bashrc\n" > "$BASH_MSRC_DIR/$2.bashrc"
+				$EDITOR "$BASH_MSRC_DIR/$2.bashrc"
 				echo "Remember to enable your new file!" 1>&2
 				return 0
 			fi
@@ -121,11 +125,11 @@ bashrc() {
 			elif [ "$(echo "$2" | grep "/")" ]; then
 				echo "You cannot use \"/\" in file names." 1>&2
 				return 1
-			elif [ ! -e "$config_dir/$2.bashrc" ]; then
+			elif [ ! -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
 				echo "The file \"$2.bashrc\" does not exist! Please specify a different name." 1>&2
 				return 1
 			else
-				rm -iv "$config_dir/$2.bashrc"
+				rm -iv "$BASH_MSRC_DIR/$2.bashrc"
 				return 0
 			fi
 			;;
@@ -137,11 +141,11 @@ bashrc() {
 			elif [ "$(echo "$2" | grep "/")" -o "$(echo "$3" | grep "/")" ]; then
 				echo "You cannot use \"/\" in file names." 1>&2
 				return 1
-			elif [ ! -e "$config_dir/$2.bashrc" ]; then
+			elif [ ! -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
 				echo "The file \"$2.bashrc\" does not exist! Please specify a different name." 1>&2
 				return 1
 			else
-				mv -iv "$config_dir/$2.bashrc" "$config_dir/$3.bashrc"
+				mv -iv "$BASH_MSRC_DIR/$2.bashrc" "$BASH_MSRC_DIR/$3.bashrc"
 				return 0
 			fi
 			
@@ -153,14 +157,14 @@ bashrc() {
 			elif [ "$(echo "$2" | grep "/")" ]; then
 				echo "You cannot use \"/\" in file names." 1>&2
 				return 1
-			elif [ ! -e "$config_dir/$2.bashrc" ]; then
+			elif [ ! -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
 				echo "The file \"$2.bashrc\" does not exist! Please specify a different name." 1>&2
 				return 1
 			elif [ ! "$EDITOR" ]||[ ! "$(command -v "$EDITOR")" ]; then
 				echo "Ensure \"\$EDITOR\" is set to a valid command." 1>&2
 				return 1
 			else
-				$EDITOR "$config_dir/$2.bashrc"
+				$EDITOR "$BASH_MSRC_DIR/$2.bashrc"
 				return 0
 			fi
 			;;
@@ -174,18 +178,18 @@ bashrc() {
 				elif [ "$(echo "$2" | grep "/")" ]; then
 					echo "You cannot use \"/\" in file names." 1>&2
 					return 1
-				elif [ ! -e "$config_dir/$2.bashrc" ]; then
+				elif [ ! -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
 					echo "The file \"$2.bashrc\" does not exist! Please specify a different name." 1>&2
 					return 1
 				else
-					shellcheck -a --color=always --shell=bash "$config_dir/$2.bashrc"
+					shellcheck -a --color=always --shell=bash "$BASH_MSRC_DIR/$2.bashrc"
 					return $?	
 				fi
 				;;
 		"enable"|"+x")
-			if [ -e "$config_dir/$2.bashrc" ]; then
-				if [ ! -x "$config_dir/$2.bashrc" ]; then
-					chmod +x "$config_dir/$2.bashrc"
+			if [ -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
+				if [ ! -x "$BASH_MSRC_DIR/$2.bashrc" ]; then
+					chmod +x "$BASH_MSRC_DIR/$2.bashrc"
 					echo "Set \"$2.bashrc\" as executable" 1>&2
 					return 0
 				else
@@ -200,9 +204,9 @@ bashrc() {
 			;;
 			
 		"disable"|"-x")
-			if [ -e "$config_dir/$2.bashrc" ]; then
-				if [ -x "$config_dir/$2.bashrc" ]; then
-					chmod -x "$config_dir/$2.bashrc"
+			if [ -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
+				if [ -x "$BASH_MSRC_DIR/$2.bashrc" ]; then
+					chmod -x "$BASH_MSRC_DIR/$2.bashrc"
 					echo "Set \"$2.bashrc\" as non-executable" 1>&2
 					return 0
 				else
@@ -216,14 +220,14 @@ bashrc() {
 			return 0
 			;;
 		"list"|"ls"|"-l")
-			ls --color=always -p "$config_dir" | grep -v "/$" | sed 's/\.bashrc//g'
+			ls --color=always -p "$BASH_MSRC_DIR" | grep -v "/$" | sed 's/\.bashrc//g'
 			return 0
 			;;
 		"source"|"-s")
 			# Source executable .bashrc files in $XDG_CONFIG_HOME/
 			
-			BASHRC_LOAD_TIMES=""
-			BASHRC_LOAD_TIME_TOTAL=""
+			MSRC_LOAD_TIMES=""
+			MSRC_LOAD_TIME_TOTAL=""
 			
 			local sloadtime
 			local eloadtime
@@ -234,9 +238,10 @@ bashrc() {
 				local tstime="$EPOCHSECONDS"
 			fi
 
-			for bashrc_file in $XDG_CONFIG_HOME/bash/bashrc/*.bashrc; do
+			local MSRC_FILE
+			for MSRC_FILE in $BASH_MSRC_DIR/*.bashrc; do
 				# Skip Iteration if not executable
-				[ ! -x "$bashrc_file" ] && continue
+				[ ! -x "$MSRC_FILE" ] && continue
 				
 				# Store time before execution
 				if [ "$command -v bc" ]; then
@@ -246,7 +251,7 @@ bashrc() {
 				fi
 
 				# Source if executable
-				source "$bashrc_file"
+				source "$MSRC_FILE"
 		
 				# Store time After Execution
 				if [ "$(command -v bc)" ]; then
@@ -255,14 +260,14 @@ bashrc() {
 					eloadtime="$EPOCHSECONDS"
 				fi
 
-				BASHRC_LOAD_TIMES+="${sloadtime} ${eloadtime} ${bashrc_file}"$'\n'
+				MSRC_LOAD_TIMES+="${sloadtime} ${eloadtime} ${MSRC_FILE}"$'\n'
 			done
 
 			# Store total load time	
 			if [ "$(command -v bc)" ]; then
-				BASHRC_LOAD_TIME_TOTAL="$(echo "$EPOCHREALTIME - $tstime" | bc)"
+				MSRC_LOAD_TIME_TOTAL="$(echo "$EPOCHREALTIME - $tstime" | bc)"
 			else
-				BASHRC_LOAD_TIME_TOTAL="$(($EPOCHSECONDS - $tstime))"
+				MSRC_LOAD_TIME_TOTAL="$(($EPOCHSECONDS - $tstime))"
 			fi
 
 			return 0
@@ -274,16 +279,16 @@ bashrc() {
 			return
 			;;
 		"-C"|"cd")
-			cd "$XDG_CONFIG_HOME/bash/bashrc"
+			cd "$BASH_MSRC_DIR"
 			;;
 		"-t"|"times")
-			echo -e "Total: ${BASHRC_LOAD_TIME_TOTAL}s\n\n" 1>&2
+			echo -e "Total: ${MSRC_LOAD_TIME_TOTAL}s\n\n" 1>&2
 		
 			local OIFS=$IFS
 			local IFS=$'\n'
 			local list
 
-			for f in $BASHRC_LOAD_TIMES; do
+			for f in $MSRC_LOAD_TIMES; do
 				local stime="$(echo "$f" | cut -d ' ' -f 1)"
 				local etime="$(echo "$f" | cut -d ' ' -f 2)"
 				local file="$(echo "$f" | cut -d ' ' -f 3-)"
@@ -297,20 +302,20 @@ bashrc() {
 			echo "$list" | sort -r
 			;;
 		"-o"|"order")
-			echo "$BASHRC_LOAD_TIMES" | cut -d ' ' -f 3-
+			echo "$MSRC_LOAD_TIMES" | cut -d ' ' -f 3-
 			;;
 		"--help"|"-?")
 			echo -e "\e[1mInfo:\e[0m"
-			echo -e "XDG BaseDir Spec based mutliple custom BASHRC File Management System"
-			echo -e "https://github.com/ChristianSilvermoon/custom-multi-bashrc\n"
-			echo -e "\e[1mUSAGE:\e[0m\nbashrc <options>\n"
+			echo -e "MSRC - Modularized Shell Runtime Configuration"
+			echo -e "https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config\n"
+			echo -e "\e[1mUSAGE:\e[0m\nmsrc <options>\n"
 
 			echo -e "\e[1mARGUMENTS:\e[0m"
 		        printf "  %-28s %s\n" "-?, --help" "Display this message"
 			printf "  %-28s %s\n" "-l, ls, list" "List config files"
-			printf "  %-28s %s\n" "-s, source" "Source Executable bashrc files from Config Path"
+			printf "  %-28s %s\n" "-s, source" "Source Executable config files from Config Path"
 			printf "  %-28s %s\n" "-S, restart" "Restart Shell, potentially losing work"
-			printf "  %-28s %s\n" "-t, times" "Print Bashrc (Rough) Bashrc Execution Times"
+			printf "  %-28s %s\n" "-t, times" "Print (Rough) Time It Took Sourcing Files"
 			printf "  %-28s %s\n" "-o, order" "Print Order each file was sourced"
 			printf "  %-28s %s\n" "+x, enable <file>" "Set a config file as executable"
 			printf "  %-28s %s\n" "-x, disable <file>" "Set a config file as non-executable"
@@ -322,25 +327,20 @@ bashrc() {
 			
 			printf "  %-28s %s\n" "-e, edit" "Edit an existing config file using \$EDITOR"
 
-			echo -e "\n\e[1mConfig Path:\e[0m\n$XDG_CONFIG_HOME/bash/bashrc"
+			echo -e "\n\e[1mConfig Path:\e[0m\n$BASH_MSRC_DIR"
 
 			return 0
 			;;
 		*)
-			echo "Invalid Option: See \"bashrc --help\"" 1>&2
+			echo "Invalid Option: See \"msrc --help\"" 1>&2
 			return 1
 			;;
 	esac
 
 }
 
-bashrc -s
-
+msrc -s
 
 # Load System BASH Completions File
 [ -r "/etc/bash_completion" ] && source /etc/bash_completion # System
 
-# Source executable bash-completion scripts
-for bash_completion_file in $XDG_CONFIG_HOME/bash/bash-completion/*.bashrc; do
-	[ -x "$bash_completion_file" ] && source "$bash_completion_file"
-done
