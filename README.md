@@ -1,5 +1,5 @@
 # Modularized Shell Runtime Config
-A Shell Runtime Configuration File that loads split components based, Inspired by [Quentin ADAM on medium.com's post](https://medium.com/@waxzce/use-bashrc-d-directory-instead-of-bloated-bashrc-50204d5389ff)
+A Shell Runtime Configuration File that loads split components. Partially inspired by [Quentin ADAM on medium.com's post](https://medium.com/@waxzce/use-bashrc-d-directory-instead-of-bloated-bashrc-50204d5389ff)
 
 You should **always** review scripts from the internet before running them, the same goes for Shell Runtime Config files especially.
 
