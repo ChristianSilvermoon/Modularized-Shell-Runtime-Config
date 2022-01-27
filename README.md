@@ -1,106 +1,32 @@
-# custom-multi-bashrc
-A bashrc that loads split components based on the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
-Inspired by [Quentin ADAM on medium.com's post](https://medium.com/@waxzce/use-bashrc-d-directory-instead-of-bloated-bashrc-50204d5389ff)
+# Modularized Shell Runtime Config
+A Shell Runtime Configuration File that loads split components based, Inspired by [Quentin ADAM on medium.com's post](https://medium.com/@waxzce/use-bashrc-d-directory-instead-of-bloated-bashrc-50204d5389ff)
 
-As a note, there is *no* strict garauntee that all of the *Extras* will be compatbile with all platforms.
-
-You should **always** review scripts from the internet before running them, the same goes for BASHRC files especially.
+You should **always** review scripts from the internet before running them, the same goes for Shell Runtime Config files especially.
 
 ## Mutliple Toggle-able Configs
-The `bashrc` here is meant to be placed in the traditional `~/.bashrc` location.
+The main config `msrc.bashrc`, `msrc.zshrc`, etc. is meant to replace your original traditional config.
 
-From there, `$XDG_CONFIG_HOME/bash` is referenced.
+From there the script will automatically source executable files ending in `.bashrc` that it finds in: `~/.bashrc.d/`
 
-`$XDG_CONFIG_HOME/bash/bashrc` is meant to house *multiple* different config files. You can use this to your advantage by splitting your configuration into components instead of one large file.
+## Changing Your Config Directory
+This used to be based on the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) in earlier versions of this project, however, that was dropped in favor of using `~/.bashrc.d` and so on for simplicity and not interfering with XDG Variable usage.
 
-Files marked executable are sourced, while files *not* marked executable will be ignored. This means that you can toggle on and off individual portions of your configuration using `chmod +x` and `chmod -x`
-
-`$XDG_CONFIG_HOME/bash/bash-completion` works exactly the same, but is inteaded for files containing completion scripts. This seperate directory essentially exists for the sake of organization.
-
-## History Relocated
-`$HISTFILE` is set to `$XDG_DATA_HOME/bash/history` instead of `~/.bash_history`
-
-It's not configuration, it's *data*.
-
-## Configuration Manager
-You can manage your multiple `.bashrc` files quickly using the `bashrc` function built into this `.bashrc`
-
-Try out `bashrc --help` to see what all it can do!
-
-For those that used earlier versions of this project, this used to be an extra, but was moved into the main `.bashrc` for ease of use and convenience. It also now features tab completion!
-
-## Extras
-Some extra .bashrc files are included for convenience.
-
-### `alias-flatpak-exports.bashrc`
-Iterates through files in `/var/lib/flatpak/exports/bin` and attempts to alias them to logical command names if they're not already taken.
-
-If they **are** already taken, will attempt the long name (IE `tld.domain.app` instead of just `app`)
-
-If the long name is ALSO taken, then no alias is created.
-
-This is done for those who don't want to do `flatpak run tld.domain.app` so that you can just run `app`
-
-run `alias | grep 'flatpak'` after this file has been sourced to see aliases it created for you.
-
-### `cd_autopshd.bashrc`
-Overrides the `cd` command with a function that calls BASH's builtin `cd` command AND also pushs your new directory to the Directory Stack (See BaSh's Manual)
-
-This means using `cd` will automatically track the directories you've navigated with the Directory Stack, allowing you to quickly jump back to places
-you've already been to in the current instance of BASH using `cd ~4` for example, to jump to the 4th directory on the stack.
-
-To see the directories currently on your Directory Stack and their associated numbers, use `dirs -v`
-
-To remove the overide at runtime you can use `unset -f cd`
-To call BASH's *true* `cd` command and bypass the function just once, you can also use `builtin cd` instead of `cd`
-
-### `chmod-aliases.bashrc`
-This one creates an absurd number of aliases for `chmod` and basic letter permissions, allowing you to skip typing out `chmod`
-
-Important Notes:
-* This only applies for **read**, **write**, and **execute** permissions, and NOT **setuid**/**setgid**/**sticky**
-* You **MUST** specify in the correct order (`ugo+rwx`), but you can leave things out like this: `uo+rx`
-* You cannot specify multiple permissions (like `ug+x,o-rwx`), you must still use `chmod` for this!
-
-Examples
+If you wish to change your config directory now, you will want to use the following environment variables:
 ```bash
-# Normally, you'd type:
-chmod +x script.sh
-chmod go-r senstive-file.txt
-chmod -x script.sh
-
-# With this, you get:
-+x script.sh
-go-r sensitive-file.txt
-chmod -x script.sh
-
+BASH_MSRC_DIR="$HOME/.bashrc.d"
+ZSH_MSRC_DIR="$HOME/.zshrc.d"
 ```
 
-### `terminology-extensions.bashrc`
-If you're using [Terminology](https://github.com/borisfaure/terminology), the EFL-based Terminal Emulator...
+If you do not export these your shell will do so automatically at start up, defaulting to the values shown above.
 
-This will automatically substitute `ls` for `tyls` and `cat` for `tycat` when appropriate.
+## Configuration Manager
+You can manage your multiple config files quickly using the `msrc` function built into main Shell config
 
-It's unlikely you'll want to `cat` a PNG to your terminal for a bunch of garbage data...
-but you might want to `tycat` it for a pretty picture within Terminology.
+Try out `msrc --help` to see what all it can do!
 
-This allows you to use Terminology's fancy versions of these commands by default so you can
-get the most out of Terminology without having to remember to substitute your usual commands.
+## Extras
+Some extra Shell Config files are included for convenience these may be loaded as modules using this system.
 
-This will **ALWAYS** fall back on standard `ls` and `cat` if you attempt to pipe them to ensure
-that you can still use them the ways you would normally.
+See the `shell-extras` folder for those Extras. The `README.md` within should give you some insight as to what each one does.
 
-If you need to examine their usual output, try: `ls | less -R`
-Or disable this.
-
-This will **NOT** use `tyls` or `tycat` if:
-* The arguments you pass are unsupported by them (example: `ls -l1ha`)
-* `$TERMINOLOGY` is undefined
-* `tycat` doesn't support the mimetype of the file you're trying to `cat`
-* You pipe `cat` or `ls` to another command or file
-* The `mimetype` command is unavailable or returns unexpected results
-* The `grep` command is unavailable
-
-### `terminology-batcat-extensions.bashrc`
-
-Identical to terminlogy-extentions, but will also always substitute `cat` for `batcat` if available, ensuring you get syntax highlighted text files.
+As a note, there is *no* strict garauntee that all of the *Extras* will be compatbile with all platforms.
