@@ -341,6 +341,8 @@ msrc() {
 
 msrc -s
 
-# Load System BASH Completions File
-[ -r "/etc/bash_completion" ] && source /etc/bash_completion # System
+# Load System BASH Completions: Standard
+[ -r "/etc/bash_completion" ] && source "/etc/bash_completion"
 
+# Load System BASH Completions: Termux
+[ -r "/data/data/com.termux/files/usr/share/bash-completion/bash_completion" ] && source "/data/data/com.termux/files/usr/share/bash-completion/bash_completion"
