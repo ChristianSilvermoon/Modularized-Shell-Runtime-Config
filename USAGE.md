@@ -46,7 +46,7 @@ It is also very important that you do **NOT** overwrite any of the following var
 * `$EPOCHSECONDS` — See BASH's Manual Page
 * `$EPOCHREALTIME` — See BASH's Manual Page
 
-### Calling Overidden Built-ins & Aliased Commands
+### Calling Overidden Built-ins, Commands, and Aliased Commands
 Though not necessarily required or needed, some Config files may **override** shell built-ins, such as `cd`
 
 At least in `bash` and `zsh`:
@@ -56,3 +56,5 @@ You should probably **NOT** ever override `builtin` for this reason.
 If this is an issue for you, you can call the original built-in using `builtin cd`
 
 To call the original version of an aliased command you can escape it like so `\command`
+
+To call an external command that's been overriden by a function, use `command YOURCOMMANDHERE`
