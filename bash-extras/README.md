@@ -12,6 +12,25 @@ This is done for those who don't want to do `flatpak run tld.domain.app` so that
 
 run `alias | grep 'flatpak'` after this file has been sourced to see aliases it created for you.
 
+## `apt2nala.bashrc`
+Automatically substitutes `apt` commands for their [nala](https://gitlab.com/volian/nala) equivalents if possible, unless piping.
+
+Will also auotmatically run `nala` with `sudo` for commands that require it.
+
+This attempts to mimick `apt`'s behavior and will not update cache unless you would've asked `apt` to, etc.
+
+This is not intended as an alias to replace `apt`, but rather to prettify the output, etc.
+
+Examples:
+* `apt update` → `sudo nala --update`
+* `apt upgrade` → `sudo nala update --no-update`
+* `apt list` → `nala search . --no-update`
+* `apt list --installed` → `nala search . --installed`
+
+This is achieved by defining a function called "`apt()`", to bypass this and call your system's *real* `apt` with this active, use `command apt`
+
+If both `apt` and `nala` are not in `$PATH` while this is active, then no shell function will be created, effectively doing nothing.
+
 ## `cd_autopshd.bashrc`
 Overrides the `cd` command with a function that calls BASH's builtin `cd` command AND also pushs your new directory to the Directory Stack (See BaSh's Manual)
 
