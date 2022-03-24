@@ -151,18 +151,44 @@ msrc() {
 			
 			;;
 		"edit"|"-e")
-			if [ "$(echo "$2" | grep ".bashrc$")" ]; then
+
+			if [ ! "$EDITOR" ]||[ ! "$(command -v "$EDITOR")" ]; then
+				echo "Ensure \"\$EDITOR\" is set to a valid command." 1>&2
+				return 1
+			
+			elif [ ! "$2" ]; then
+				echo -e "\e[1mSelect a config file to edit:\e[22m"
+				local editable_files=()
+				local i
+
+				for i in $BASH_MSRC_DIR/*.bashrc; do
+					editable_files+=( "$(basename "$i" | sed 's/\.bashrc$//g')" )
+				done
+
+				local PS3="$(echo -e "\e[1mEnter a #: \e[22m")"
+				select i in "${editable_files[@]}"; do
+					if [ "$i" ]; then
+						$EDITOR "$BASH_MSRC_DIR/$i.bashrc"
+						return 0
+					else
+						echo "No valid file was selected, aborting." 1>&2
+						return 1
+					fi
+				done
+
+				return 0
+			elif [ "$(echo "$2" | grep ".bashrc$")" ]; then
 				echo "The extension \".bashrc\" is automatically appended, please don't include it." 1>&2
 				return 1
+			
 			elif [ "$(echo "$2" | grep "/")" ]; then
 				echo "You cannot use \"/\" in file names." 1>&2
 				return 1
+
 			elif [ ! -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
 				echo "The file \"$2.bashrc\" does not exist! Please specify a different name." 1>&2
 				return 1
-			elif [ ! "$EDITOR" ]||[ ! "$(command -v "$EDITOR")" ]; then
-				echo "Ensure \"\$EDITOR\" is set to a valid command." 1>&2
-				return 1
+
 			else
 				$EDITOR "$BASH_MSRC_DIR/$2.bashrc"
 				return 0
