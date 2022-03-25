@@ -32,7 +32,7 @@ This is achieved by defining a function called "`apt()`", to bypass this and cal
 If both `apt` and `nala` are not in `$PATH` while this is active, then no shell function will be created, effectively doing nothing.
 
 ## `cd_autopshd.bashrc`
-Overrides the `cd` command with a function that calls BASH's builtin `cd` command AND also pushs your new directory to the Directory Stack (See BaSh's Manual)
+Overrides the `cd` command with a function that calls BASH's builtin `cd` command AND also pushes your new directory to the Directory Stack (See BASH's Manual)
 
 This means using `cd` will automatically track the directories you've navigated with the Directory Stack, allowing you to quickly jump back to places
 you've already been to in the current instance of BASH using `cd ~4` for example, to jump to the 4th directory on the stack.
