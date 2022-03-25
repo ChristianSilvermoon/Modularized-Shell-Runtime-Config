@@ -208,8 +208,14 @@ msrc() {
 			;;
 
 		"-S"|"restart")
-			echo "Restarting Shell..." >&2
-			exec zsh
+			local jcount="$(jobs -p | wc -l)"
+			if [ "$jcount" = "0" ]; then
+				echo "Restarting Shell..." >&2
+				exec zsh
+			else
+				echo -e "Your shell has $jcount stopped job$([ "$jcount" = "1" ] || echo -ne 's').\nPlease \e[1mterminate\e[22m or \e[1mdisown\e[22m any jobs before restarting to avoid losing work.\nYou can see your jobs with \"jobs -l\"" 1>&2
+				return 1
+			fi
 			return
 			;;
 		"-C"|"cd")
