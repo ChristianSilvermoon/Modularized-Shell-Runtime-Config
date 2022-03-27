@@ -427,21 +427,46 @@ msrc() {
 			echo -e "\e[1mUSAGE:\e[0m\nmsrc <options>\n"
 
 			echo -e "\e[1mARGUMENTS:\e[0m"
-		        printf "  %-28s %s\n" "-?, --help" "Display this message"
+			
+			# Display Shellcheck, width details
+			printf "  %-28s %s\n" "-c, check" "Check a config file with shellcheck"
+			if [ "$(command -v shellcheck)" ]; then
+				# Warn if shellcheck is missing
+				echo -en "\e[31;2;3m"
+				printf "  %-28s %s\n" '' "Note: \"shellcheck\" is not available in \$PATH!"
+				echo -en "\e[22;23;37m"
+			fi
+			printf "  %-28s %s\n" "-C, cd" "cd to Config Path"
+
+			# Edit Argument, with details
+			printf "  %-28s %s" "-e, edit" "Edit an existing config file using "
+			if [ "$EDITOR" ]; then
+				# Warn if valid editor or not
+				[ "$(command -v $EDITOR)" ] && echo -ne "\e[32m" || echo -ne "\e[31m"
+				echo -e "$EDITOR\e[31;2;3m"
+				[ ! "$(command -v $EDITOR)" ] && printf "  %-28s %s\n" "" "Note: \"$EDITOR\" isn't a valid command!"
+
+			else
+				# Warn that $EDITOR isn't set
+				echo -e "\e[35m\$EDITOR\e[31;2;3m"
+				printf "  %-28s %s\n" "" "Note: Your \$EDITOR isn't set."
+
+			fi
+			echo -ne "\e[22;23;37m"
+
 			printf "  %-28s %s\n" "-l, ls, list" "List config files"
+			printf "  %-28s %s\n" "-m, mv, rename <old> <new>" "Rename a config file"
+			printf "  %-28s %s\n" "-n, new <file>" "Create and edit new non-executable config file"
+			printf "  %-28s %s\n" "-r, rm, remove <file>" "Delete a config file"
 			printf "  %-28s %s\n" "-s, source" "Source Executable config files from Config Path"
 			printf "  %-28s %s\n" "-S, restart" "Restart Shell, potentially losing work"
 			printf "  %-28s %s\n" "-t, times" "Print (Rough) Time It Took Sourcing Files"
 			printf "  %-28s %s\n" "-o, order" "Print Order each file was sourced"
 			printf "  %-28s %s\n" "+x, enable <file>" "Set a config file as executable"
 			printf "  %-28s %s\n" "-x, disable <file>" "Set a config file as non-executable"
-			printf "  %-28s %s\n" "-n, new <file>" "Create and edit new non-executable config file"
-			printf "  %-28s %s\n" "-r, rm, remove <file>" "Delete a config file"
-			printf "  %-28s %s\n" "-m, mv, rename <old> <new>" "Rename a config file"
-			printf "  %-28s %s\n" "-c, check" "Check a config file with shellcheck"
-			printf "  %-28s %s\n" "-C, cd" "cd to Config Path"
+
+		        printf "  %-28s %s\n" "-?, --help" "Display this message"
 			
-			printf "  %-28s %s\n" "-e, edit" "Edit an existing config file using \$EDITOR"
 
 			echo -e "\n\e[1mConfig Path:\e[0m\n$BASH_MSRC_DIR"
 
