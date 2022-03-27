@@ -19,6 +19,19 @@ However, it is **STRONGLY RECOMMENDED** that you prefix your file's names with n
 
 You can think of this as a *priority system*, with lower numbered files being loaded first. If the files have the same number, they're loaded alphabetically.
 
+## Including Metadata In Your Configs
+You can add a comment in your script file like so
+
+```bash
+#!/bin/bash
+# Description: Sample Description
+```
+This description will show in `msrc list`
+
+You can use this to help you better identify what your particular config is for!
+
+Currently, this behavior is only supported when using MSRC with BASH.
+
 ## Caveats & Important Notes
 Using this system has a few important details you may wish to be aware of.
 

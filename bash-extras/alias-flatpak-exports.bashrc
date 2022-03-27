@@ -1,5 +1,5 @@
 #!/bin/bash
-# Alias all flatpaks to their logical command names, but only if they're not already commands
+# Description: Alias all flatpaks to their logical command names, but only if they're not already commands.
 
 local item
 for item in /var/lib/flatpak/exports/bin/*; do

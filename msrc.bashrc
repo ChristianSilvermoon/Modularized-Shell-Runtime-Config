@@ -112,7 +112,7 @@ msrc() {
 				echo "Ensure \"\$EDITOR\" is set to a valid command." 1>&2
 				return 1
 			else
-				echo -e "#!/bin/bash\n# New Bashrc\n" > "$BASH_MSRC_DIR/$2.bashrc"
+				echo -e "#!/bin/bash\n# Description: New BASHRC" > "$BASH_MSRC_DIR/$2.bashrc"
 				$EDITOR "$BASH_MSRC_DIR/$2.bashrc"
 				echo "Remember to enable your new file!" 1>&2
 				return 0
@@ -246,7 +246,92 @@ msrc() {
 			return 0
 			;;
 		"list"|"ls"|"-l")
-			ls --color=always -p "$BASH_MSRC_DIR" | grep -v "/$" | sed 's/\.bashrc//g'
+			local x
+			local file=()
+			local name=()
+			local desc=()
+			local tdesc=""
+			local tname=""
+			local nameLength=0
+			local descLength=0
+			local status=()
+			local longestName=0
+			local longestDesc=0
+			local maxWidth="$COLUMNS"
+			local pBuffer=""
+			local truncPoint=""
+			local tableWidth=""
+			local tableBar=""
+
+			# Get data on all files
+			for x in $BASH_MSRC_DIR/*; do
+				tname=( "$(command basename "$x" | sed 's/\.bashrc$//g')" )
+				tdesc="$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)"
+
+				nameLength=$(( $(echo "$tname" | wc -c) - 1))
+				descLength=$(( $(echo "$tdesc" | wc -c) - 1))
+
+
+				[ "$longestName" -lt "$nameLength" ] && longestName="$nameLength"
+				[ "$longestDesc" -lt "$descLength" ] && longestDesc="$descLength"
+
+				name+=( "$tname" )
+				desc+=( "$tdesc" )
+				if [ -x "$x" ]; then
+					# Green for Executable
+					status+=( $(echo -ne "\e[32;1m") )
+				else
+					# Red for Not Executable
+					status+=( $(echo -ne "\e[31;1m") )
+				fi
+			done
+
+			# Set point at which to truncate descriptions
+			truncPoint=$(( maxWidth - longestName - 10 ))
+
+			# Calculate Table Width
+			tableWidth="$((longestName + 5 + longestDesc))"
+			[ "$tableWidth" -gt "$((maxWidth -2 ))" ] && tableWidth=$((maxWidth - 2))
+
+			# Generate Table Bar
+			tableBar+="╔"
+			for ((x=0; x < $tableWidth; x++)); do
+				if [ "$x" = "$((longestName + 2))" ]; then
+					tableBar+="╦"
+				else
+					tableBar+="═"
+				fi
+			done
+			tableBar+="╗"
+
+			# Draw Table
+			pBuffer+=$(echo -e "\e[37;1m$tableBar")$'\n'
+			pBuffer+=$(printf "║ %-${longestName}s ║ %-$((tableWidth - longestName - 5))s ║\n" "Name" "Description")$'\n'
+			pBuffer+=$(echo "$tableBar" | sed 's/╔/╠/g; s/╦/╬/g; s/╗/╣/g')$'\n'
+
+			# List Config Files and Descriptions
+			for ((x=0; x < ${#name[@]}; x++)); do
+				pBuffer+=$(echo -ne "\e[37;1m║ ${status[x]}")
+
+				pBuffer+=$(printf "%-${longestName}s" "${name[x]}")
+				pBuffer+=$(echo -ne "\e[37;1m ║ ${status[x]}")
+				
+				tdesc="${desc[x]:0:$truncPoint}"
+				if [ "$tdesc" ]; then
+					[ "${#desc[x]}" -ge "$truncPoint" ] && tdesc+="..."
+					pBuffer+=$(printf "%-$((tableWidth - longestName - 5))s" "$tdesc")
+				else
+					pBuffer+=$(printf "%-$((tableWidth - longestName + 9))s" "$(echo -ne "\e[2;3mNo Description\e[22;23m")")
+				fi
+				
+				pBuffer+=$(echo -en " \e[37;1m║")$'\n'
+			done
+
+			pBuffer+=$(echo -e "\e[37;1m$tableBar\e[22m" | sed 's/╔/╚/g; s/╦/╩/g; s/╗/╝/g')
+			echo "$pBuffer"
+
+			# End Table			
+
 			return 0
 			;;
 		"source"|"-s")

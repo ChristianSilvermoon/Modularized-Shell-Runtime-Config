@@ -1,5 +1,5 @@
 #!/bin/bash
-# Auto pushd
+# Description: 'cd' automatically pushes directories onto the Directory Stack.
 
 cd() {
 	builtin cd "$@"

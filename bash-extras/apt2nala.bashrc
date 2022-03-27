@@ -1,6 +1,5 @@
 #!/bin/bash
-# Automatically substitute apt commands with nala variants
-# Will also automatically use sudo when needed.
+# Description: Automatically substitute apt commands with nala variants. Will also automatically use sudo when needed.
 
 if [ "$(command -v "apt")" ]&&[ "$(command -v nala)" ]; then
 	# Only if both apt and nala are present on system.

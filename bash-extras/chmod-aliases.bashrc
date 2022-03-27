@@ -1,5 +1,5 @@
 #!/bin/bash
-# Set perms without typing out chmod
+# Description: Aliases to use '+x' instead of 'chmod +x' and more. Order must always be 'ugo' and 'rwx'!
 
 for p in +x -x +r -r +w -w +rw -rw +rwx -rwx +rx -rx +wx -wx; do
 	alias -- $p="chmod $p"		# Unspecified

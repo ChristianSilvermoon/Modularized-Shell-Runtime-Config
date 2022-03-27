@@ -1,5 +1,5 @@
 #!/bin/bash
-# New Bashrc
+# Description: Substitute 'tycat', 'tyls', and 'batcat' when appropriate
 
 if [ "$TERMINOLOGY" ]&&[ "$(command -v mimetype)" ]&&[ "$(command -v grep)" ]; then
 	# Use tycat and tyls instead of cat and ls
