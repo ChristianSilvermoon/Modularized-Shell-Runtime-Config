@@ -430,7 +430,7 @@ msrc() {
 			
 			# Display Shellcheck, width details
 			printf "  %-28s %s\n" "-c, check" "Check a config file with shellcheck"
-			if [ "$(command -v shellcheck)" ]; then
+			if [ ! "$(command -v shellcheck)" ]; then
 				# Warn if shellcheck is missing
 				echo -en "\e[31;2;3m"
 				printf "  %-28s %s\n" '' "Note: \"shellcheck\" is not available in \$PATH!"
