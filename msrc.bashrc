@@ -49,7 +49,7 @@ _msrc() {
 
 	case $prev in
 
-		-c|check|-e|edit|-r|rm|remove)
+		-c|-m|-e|-r|check|edit|mv|rm|remove|rename)
 			local scripts=""
 			
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
@@ -62,7 +62,7 @@ _msrc() {
 			return
 
 			;;
-		-[x|m]|disable|mv|rename)
+		-x|disable)
 			local scripts=""
 			
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
