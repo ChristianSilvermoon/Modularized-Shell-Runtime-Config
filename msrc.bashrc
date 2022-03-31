@@ -42,7 +42,7 @@ _msrc() {
 
 	if [ "$cword" = "1" ]; then
 		COMPREPLY=($(
-			compgen -W '-? -l -s -t -o -x -n -r -m -c -e +x -C -S --help cd restart ls list source times order enable disable new rm remove mv rename check edit' -- "$cur"
+			compgen -W '-? -l -L -s -t -o -x -n -r -m -c -e +x -C -S --help cd restart ls list source times order enable disable new rm remove mv rename check edit' -- "$cur"
 		))
 		return
 	fi
@@ -86,6 +86,12 @@ _msrc() {
 			))
 			return
 
+			;;
+		-l|ls|list)
+			COMPREPLY=($(
+				compgen -W "--fancy" -- "$cur"
+			))
+			return
 			;;
 		*)
 			:	
@@ -245,51 +251,52 @@ msrc() {
 			fi
 			return 0
 			;;
-		"slist")
-			# Simpler List Format for lower end systems
+		"list"|"ls"|"-l"|"-L")
 			local x
-			local name
+			local pBuffer=""
 			local longestName=0
-			local desc
-			local maxDescLength=9999
-			local names=()
-			local descs=()
-			local pBuffer
+			
+			if [ ! "$2" = "--fancy" ]&&[ "$1" != "-L" ]; then
+				# Simpler List Format for lower end systems
+				local name
+				local desc
+				local maxDescLength=9999
+				local names=()
+				local descs=()
 
+				for x in $BASH_MSRC_DIR/*; do
+					if [ -x "$x" ]; then
+						name=$(echo -en "\e[32;1m")
+					else
+						name=$(echo -en "\e[31;1m")
+					fi
 
-			for x in $BASH_MSRC_DIR/*; do
-				if [ -x "$x" ]; then
-					name=$(echo -en "\e[32;1m")
-				else
-					name=$(echo -en "\e[31;1m")
+					name+=$(basename "$x" | sed 's/\.bashrc$//g')
+					desc=$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)
+					[ "$longestName" -lt "${#name}" ] && longestName=${#name}
+					names+=( "$name" )
+
+					descs+=( "$desc" )
+				done
+				longestName=$((longestName + 1))
+
+				if [ -t 1 ]&&[ "$COLUMNS" ]; then
+					maxDescLength=$((COLUMNS - longestName + 5))
 				fi
-				
-				name+=$(basename "$x" | sed 's/\.bashrc$//g')
-				desc=$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)
-				[ "$longestName" -lt "${#name}" ] && longestName=${#name}
-				names+=( "$name" )
 
-				descs+=( "$desc" )
-			done
-			longestName=$((longestName + 1))
+				echo -en "\e[1m"
+				pBuffer+=$(printf "%-$((longestName - 7))s %s" "NAME" "DESCRIPTION")$'\n'
 
-			if [ -t 1 ]&&[ "$COLUMNS" ]; then
-				maxDescLength=$((COLUMNS - longestName + 5))
+				for ((x=0; x < ${#names[@]}; x++)); do
+					pBuffer+=$(printf "%-${longestName}s %s" "${names[x]}" "${descs[x]:0:maxDescLength}")$'\n'
+				done
+
+				echo "$pBuffer"
+
+				echo -en "\e[37;22m" 1>&2
+				return 0
 			fi
 
-			echo -en "\e[1m"
-			pBuffer+=$(printf "%-$((longestName - 7))s %s" "NAME" "DESCRIPTION")$'\n'
-
-			for ((x=0; x < ${#names[@]}; x++)); do
-				pBuffer+=$(printf "%-${longestName}s %s" "${names[x]}" "${descs[x]:0:maxDescLength}")$'\n'
-			done
-
-			echo "$pBuffer"
-
-			echo -en "\e[37;22m" 1>&2
-			return 0
-			;;
-		"list"|"ls"|"-l")
 			local x
 			local file=()
 			local name=()
@@ -299,10 +306,8 @@ msrc() {
 			local nameLength=0
 			local descLength=0
 			local status=()
-			local longestName=0
 			local longestDesc=0
 			local maxWidth="$COLUMNS"
-			local pBuffer=""
 			local truncPoint=""
 			local tableWidth=""
 			local tableBar=""
@@ -498,7 +503,8 @@ msrc() {
 			fi
 			echo -ne "\e[22;23;37m"
 
-			printf "  %-28s %s\n" "-l, ls, list" "List config files"
+			printf "  %-28s %s\n" "-l, ls, list [--fancy]" "List config files, optionally with pretty border."
+			printf "  %-28s %s\n" "-L" "Equivalent to 'msrc ls --fancy' (pretty border)."
 			printf "  %-28s %s\n" "-m, mv, rename <old> <new>" "Rename a config file"
 			printf "  %-28s %s\n" "-n, new <file>" "Create and edit new non-executable config file"
 			printf "  %-28s %s\n" "-r, rm, remove <file>" "Delete a config file"
