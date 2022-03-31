@@ -245,6 +245,50 @@ msrc() {
 			fi
 			return 0
 			;;
+		"slist")
+			# Simpler List Format for lower end systems
+			local x
+			local name
+			local longestName=0
+			local desc
+			local maxDescLength=9999
+			local names=()
+			local descs=()
+			local pBuffer
+
+
+			for x in $BASH_MSRC_DIR/*; do
+				if [ -x "$x" ]; then
+					name=$(echo -en "\e[32;1m")
+				else
+					name=$(echo -en "\e[31;1m")
+				fi
+				
+				name+=$(basename "$x" | sed 's/\.bashrc$//g')
+				desc=$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)
+				[ "$longestName" -lt "${#name}" ] && longestName=${#name}
+				names+=( "$name" )
+
+				descs+=( "$desc" )
+			done
+			longestName=$((longestName + 1))
+
+			if [ -t 1 ]&&[ "$COLUMNS" ]; then
+				maxDescLength=$((COLUMNS - longestName + 5))
+			fi
+
+			echo -en "\e[1m"
+			pBuffer+=$(printf "%-$((longestName - 7))s %s" "NAME" "DESCRIPTION")$'\n'
+
+			for ((x=0; x < ${#names[@]}; x++)); do
+				pBuffer+=$(printf "%-${longestName}s %s" "${names[x]}" "${descs[x]:0:maxDescLength}")$'\n'
+			done
+
+			echo "$pBuffer"
+
+			echo -en "\e[37;22m" 1>&2
+			return 0
+			;;
 		"list"|"ls"|"-l")
 			local x
 			local file=()
