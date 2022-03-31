@@ -62,7 +62,7 @@ _msrc() {
 			return
 
 			;;
-		-x|disable)
+		-[x|m]|disable|mv|rename)
 			local scripts=""
 			
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
