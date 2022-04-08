@@ -13,7 +13,7 @@ if [ "$(command -v "apt")" ]&&[ "$(command -v nala)" ]; then
 
 		# Substitute apt with nala when arguments are compatible.
 		case $1 in
-			install|remove|purge|search|history|show|update|upgrade)
+			install|remove|purge|history|update|upgrade)
 				echo -e "\e[2;3mNote: Substituting \"apt\" for \"nala\" instead.\e[22;23m" 2>&1
 				sudo nala "$@"
 				;;
@@ -31,6 +31,11 @@ if [ "$(command -v "apt")" ]&&[ "$(command -v nala)" ]; then
 					echo -e "\e[2;3mNote: Substituting \"apt\" for \"nala\" instead.\e[22;23m" 2>&1
 					nala search .
 				fi
+				;;
+			search|show)
+				echo -e "\e[2;3mNote: Substituting \"apt\" for \"nala\" instead.\e[22;23m" 2>&1
+				nala "$@"
+
 				;;
 			*)
 				# Automatically fall back to real apt (no auto-sudo)
