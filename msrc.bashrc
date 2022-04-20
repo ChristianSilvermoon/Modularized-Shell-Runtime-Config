@@ -344,13 +344,9 @@ msrc() {
 
 			# Generate Table Bar
 			tableBar+="╔"
-			for ((x=0; x < $tableWidth; x++)); do
-				if [ "$x" = "$((longestName + 2))" ]; then
-					tableBar+="╦"
-				else
-					tableBar+="═"
-				fi
-			done
+			tableBar+="$(printf '%*s' $((longestName + 2)) | sed 's/ /═/g')"
+			tableBar+="╦"
+			tableBar+="$(printf '%*s' $(( tableWidth - longestName - 3 )) | sed 's/ /═/g')"
 			tableBar+="╗"
 
 			# Draw Table
