@@ -515,6 +515,7 @@ msrc() {
 			
 
 			echo -e "\n\e[1mConfig Path:\e[0m\n$BASH_MSRC_DIR"
+			echo -e "\e[2;3mNote: You can change this path by setting the value of \$BASH_MSRC_DIR\e[22;23m"
 
 			return 0
 			;;
