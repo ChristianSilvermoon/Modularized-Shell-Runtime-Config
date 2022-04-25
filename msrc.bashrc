@@ -506,7 +506,15 @@ msrc() {
 			printf "  %-28s %s\n" "-r, rm, remove <file>" "Delete a config file"
 			printf "  %-28s %s\n" "-s, source" "Source Executable config files from Config Path"
 			printf "  %-28s %s\n" "-S, restart" "Restart Shell, potentially losing work"
+
 			printf "  %-28s %s\n" "-t, times" "Print (Rough) Time It Took Sourcing Files"
+			if [ ! "$(command -v bc)" ]; then
+				# Warn if bc is missing
+				echo -en "\e[31;2;3m"
+				printf "  %-28s %s\n" '' "Note: having \"bc\" GREATLY improves accuracy!"
+				echo -en "\e[22;23;37m"
+			fi
+
 			printf "  %-28s %s\n" "-o, order" "Print Order each file was sourced"
 			printf "  %-28s %s\n" "+x, enable <file>" "Set a config file as executable"
 			printf "  %-28s %s\n" "-x, disable <file>" "Set a config file as non-executable"
