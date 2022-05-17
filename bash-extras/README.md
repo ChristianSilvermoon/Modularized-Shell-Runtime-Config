@@ -61,8 +61,77 @@ chmod -x script.sh
 +x script.sh
 go-r sensitive-file.txt
 chmod -x script.sh
-
 ```
+
+## `super-cd.bashrc`
+Overrides the `cd` command to make it more **SUPER** with a variety of new features.
+
+Its options are displayed with `cd --help` or `cd -?` alongside vanilla `cd` options.
+
+If you have `lolcat` in your path, Super CD's help contents will also rainbow-ified.
+
+### History
+`cd` will automatically push your new `$PWD`
+
+You could always navigate using the directory stack with `cd ~3`
+
+But now the Directory Stack is tracking everywhere you've been in your current session!
+
+`cd ~2` will take you back to the previous directory!
+
+`cd -d` will run `dirs -v`, allowing you to see the directory stack with relevant numbers.
+
+### Favorites / Bookmarks
+Bookmarks at the GUI are great, but what about in the terminal?
+
+You can view your bookmarks with `cd -f` or go to one with `cd -f bookmark-name`!
+
+By default, super-cd will define the following bookmarks:
+
+| Bookmark | Directory     | Condition           |
+| -------- | ------------- | ------------------- |
+| my-bin   |`~/.local/bin` | If directory exists |
+| desk     |`~/Desktop`    | If directory exists |
+| docs     |`~/Documents`  | If directory exists |
+| dl       |`~/Downloads`  | If directory exists |
+| music    |`~/Music`      | If directory exists |
+| pics     |`~/Pictures`   | If directory exists |
+| tmp      |`$TMPDIR`      | If `$TMPDIR` is set |
+
+Bookmarks are stored/refererenced from an *Associative Array* named `$CD_BKM` (CD Bookmarks)
+
+If `$CD_BKM` already exists, then super cd will not create the default bookmarks
+
+Try adding your own `.bashrc` that just defines bookmarks that loads *after* Super CD
+
+Alternatively, you can customize your super-cd `.bashrc`
+
+If you want to create the array in your own config, do so with `declare -gA CD_BKM` to create the required global Associative Array.
+
+Example Usage:
+```bash
+# Adding Bookmarks
+CD_BKM["git"]="$HOME/Dev/my-github"
+CD_BKM["www"]="/var/www/html"
+
+# Using Bookmarks
+cd %git    # IF `./%git` does not exist
+cd -f git  # ANY TIME
+```
+
+When listing Bookmarks, a bookmark corresponding to your current directory is listed in green and invalid bookmarks are listed in red. 
+
+Note: You unfortunately **CANNOT** use bookmark short hand with `shopt -s auto_cd` like you can with the Directory Stack. The "%" with a word is normally reserved `fg` shorthand in BASH anyhow.
+
+### Improved Directory Asscension
+Tired of typing `cd ../../../..` ?
+
+With Super CD you can type `cd .. 4` or `cd -u 4` instead!
+
+You can also ascend to the root of your current filesystem or subvolume with `cd -r`
+
+If you use `cd -b ho` Super CD will attempt to use [bd](https://github.com/vigneshwaranr/bd) to find a parent directory to go to.
+
 
 ## `terminology-extensions.bashrc`
 If you're using [Terminology](https://github.com/borisfaure/terminology), the EFL-based Terminal Emulator...
