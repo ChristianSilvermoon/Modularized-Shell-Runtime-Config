@@ -42,7 +42,7 @@ To see the directories currently on your Directory Stack and their associated nu
 To remove the overide at runtime you can use `unset -f cd`
 To call BASH's *true* `cd` command and bypass the function just once, you can also use `builtin cd` instead of `cd`
 
-### `chmod-aliases.bashrc`
+## `chmod-aliases.bashrc`
 This one creates an absurd number of aliases for `chmod` and basic letter permissions, allowing you to skip typing out `chmod`
 
 Important Notes:
