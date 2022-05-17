@@ -86,7 +86,7 @@ Bookmarks at the GUI are great, but what about in the terminal?
 
 You can view your bookmarks with `cd -f` or go to one with `cd -f bookmark-name`!
 
-By default, super-cd will define the following bookmarks:
+By default, Super CD will define the following bookmarks:
 
 | Bookmark | Directory     | Condition           |
 | -------- | ------------- | ------------------- |
@@ -100,11 +100,11 @@ By default, super-cd will define the following bookmarks:
 
 Bookmarks are stored/refererenced from an *Associative Array* named `$CD_BKM` (CD Bookmarks)
 
-If `$CD_BKM` already exists, then super cd will not create the default bookmarks
+If `$CD_BKM` already exists, then Super CD will not create the default bookmarks
 
 Try adding your own `.bashrc` that just defines bookmarks that loads *after* Super CD
 
-Alternatively, you can customize your super-cd `.bashrc`
+Alternatively, you can customize your Super CD `.bashrc`
 
 If you want to create the array in your own config, do so with `declare -gA CD_BKM` to create the required global Associative Array.
 
