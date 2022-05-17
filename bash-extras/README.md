@@ -121,7 +121,7 @@ cd -f git  # ANY TIME
 
 When listing Bookmarks, a bookmark corresponding to your current directory is listed in green and invalid bookmarks are listed in red. 
 
-Note: You unfortunately **CANNOT** use bookmark short hand with `shopt -s auto_cd` like you can with the Directory Stack. The "%" with a word is normally reserved `fg` shorthand in BASH anyhow.
+Note: You unfortunately **CANNOT** use bookmark short hand with `shopt -s autocd` like you can with the Directory Stack. The "%" with a word is normally reserved `fg` shorthand in BASH anyhow.
 
 ### Improved Directory Asscension
 Tired of typing `cd ../../../..` ?
