@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+        <meta charset="utf-8">
+        <title>Moduluarized Shell Runtime Config</title>
+        <link rel="stylesheet" href="/stylesheets/main.css">
+	<link rel="icon" href="img/favicon.png">
+</head>
+<body>
+	<h1>Modularized Shell Runtime Config</h1>
+	<center><a href="https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config">Get it on GitHub</a></center>
+	<hr/>
+	Do you customize your <code>~/.bashrc</code> a LOT?<br/>
+	<br/>
+	The shell can be so powerful, and there's a seemingly endless amount of possabilities</br>
+	...but when your <code>~/.bashrc</code> gets big enough, filtering through all that customization
+	just to change what you're looking for can get pretty tricky...<br/>
+
+	<h2 id="intro">...Introducing MSRC!</h2>
+	Now you can split your shell configuration into multiple files using a somewhat familiar convention: a directory named <code>~/.bashrc.d/</code>!<br/><br/>
+	Now  you can make <code>~/.bashrc.d/00_my-new-cool-additions.bashrc</code> instead and keep things nice, organized, and modular!</br>
+	<br/>
+	But wait, <b>there's MORE!</b><br/>
+	You can control which ones will be sourced and which ones won't using the files' <b>Executable Permission</b>!<br/>
+	<br/>
+	It even comes with a helpful management command called <code>msrc</code>, so once you set it up, give running <code>msrc --help</code> a chance!<br/>
+	<br/>
+	You can check out the <a href="#Screenshots">Screenshots Section</a> below for a look!<br/>
+	<h2 id="Q-And-A">Q&amp;A</h2>
+	<b>Q:</b> <i>How do I get this?</i><br/>
+	<b>A:</b> <i>Just visit the <a href="https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config">main GitHub Page</a> and checkout the <code>README.md</code> and <code>USAGE.md</code> files!</i><br/>
+	<br/>
+	<b>Q:</b> <i>Why is this page so basic?</i><br/>
+	<b>A:</b> <i>Why NOT?</i><br/>
+	<br/>
+	<b>Q:</b> <i>What have you DONE?! This is overcomplicating things! You've ruined the simplicity of the UNIX Shell!!!</i><br/>
+	<b>A:</b> <i>You're welcome ;)</i><br/>
+	<br/>
+	<b>Q:</b> <i>Wow, is this idea completely original!?</i><br/>
+	<b>A:</b> <i>No, actually! It was semi-inspired by a <a href=https://waxzce.medium.com/use-bashrc-d-directory-instead-of-bloated-bashrc-50204d5389ff>post by Quentin ADAM on Medium.com</a></i><br/>
+	<br/>
+	<b>Q:</b> <i>Why is this page in permanent Dark Mode?</i><br/>
+	<b>A:</b> <i>The Dark Side has free cookies. Also, I value my eyes.</i><br/>
+	<br/>
+	<b>Q:</b> <i>Where's all the jQuery and JavaScript and telemetry on this page?</i><br/>
+	<b>A:</b> <i>That's the neat part! There isn't!</i>
+
+	<h2 id="Screenshots">Screenshots</h2>
+	<i>Note: All screenshots below showcase <a href="https://www.enlightenment.org/about-terminology" title="The Enlightenment Terminal">Terminology</a> runnning on <a href="https://linuxmint.com/" title="A great distro">Linux Mint</a>'s Live System.<br/>
+
+	<h3 id="Help">Help Message</h3>
+	A good help message when running <code>msrc --help</code> to ensure you hopefully won't get lost!</br>
+	It will even tell you about important <b>Environment Variables</b> and missing <b>Optional Dependencies</b>!<br/>
+	<img src="/img/msrc-help.png">
+
+	<h3 id="List">List Your Configs</h3>
+	See which configs are marked as executable and which aren't. <font color=#F55>Red Means Disabled</font> and <font color=#5F5>Green Means Enabled</font>.</br>
+	<img src="/img/msrc-list.png">
+
+	<h3 id="Super-CD">Super CD (Extra)</h3>
+	An extra <code>bashrc</code> for this system that makes your <code>cd</code> more <i>Super</i>!<br/>
+	<img src="/img/super-cd.png">
+
+	<h3 id="Auto-Cat-Substitution">Automatic <code>tycat</code>/<code>batcat</code> Substitution (Extra)</h3>
+	An extra <code>bashrc</code> that automatically runs <code>tycat</code> or <code>batcat</code> depending on file type, but falls back to vanilla 
+	<code>cat</code> when piping or passing in aguments that <code>tycat</code> or <code>batcat</code> can't do!<br/>
+	Also automatically uses <code>tyls</code> over regular <code>ls</code> in many cases!<br/>
+	<img src="/img/auto-batcat.png"><br/>
+	<img src="/img/auto-tycat.png">
+</body>
+</html>

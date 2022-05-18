@@ -1,0 +1,43 @@
+
+:root {
+	/*Color Pallete*/
+	--bkg-color: #111;
+	--code-bkg: #000;
+	--txt-color: #EEE;
+	--head-green: #5F5;
+	--link-color: #55F;
+	--link-visited: #F5F;
+}
+
+
+html {
+	background: var(--bkg-color);
+	color: var(--txt-color);
+	line-height: 1.5em;
+}
+
+h1 {
+	color: var(--head-green);
+	text-align: center;
+}
+
+img {
+	border-radius: 6px;
+	border: 2px inset var(--txt-color);
+	margin: 6px;
+}
+
+a:link {
+	color: var(--link-color);
+}
+
+a:visited {
+	color: var(--link-visited);
+}
+
+code {
+	border: 1px solid var(--txt-color);
+	padding: 2px;
+	border-radius: 4px;
+	background: var(--code-bkg);
+}
