@@ -110,13 +110,17 @@ If you want to create the array in your own config, do so with `declare -gA CD_B
 
 Example Usage:
 ```bash
-# Adding Bookmarks
+# Adding/Changing Bookmarks
 CD_BKM["git"]="$HOME/Dev/my-github"
 CD_BKM["www"]="/var/www/html"
 
 # Using Bookmarks
 cd %git    # IF `./%git` does not exist
 cd -f git  # ANY TIME
+
+# Removing Bookmarks
+unset CD_BKM["git"]
+unset CD_BKM["www"]
 ```
 
 When listing Bookmarks, a bookmark corresponding to your current directory is listed in green and invalid bookmarks are listed in red. 
