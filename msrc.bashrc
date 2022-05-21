@@ -29,6 +29,11 @@
 # For more information, please refer to <https://unlicense.org> 
 # =========================================
 
+# Load System BASH Completions: Standard
+[ -r "/etc/bash_completion" ] && source "/etc/bash_completion"
+
+# Load System BASH Completions: Termux
+[ -r "/data/data/com.termux/files/usr/share/bash-completion/bash_completion" ] && source "/data/data/com.termux/files/usr/share/bash-completion/bash_completion"
 
 # MSRC Directory Setup
 [ "$BASH_MSRC_DIR" ] || export BASH_MSRC_DIR="$HOME/.bashrc.d"
@@ -515,6 +520,7 @@ msrc() {
 				echo -en "\e[22;23;37m"
 			fi
 
+
 			printf "  %-28s %s\n" "-o, order" "Print Order each file was sourced"
 			printf "  %-28s %s\n" "+x, enable <file>" "Set a config file as executable"
 			printf "  %-28s %s\n" "-x, disable <file>" "Set a config file as non-executable"
@@ -536,9 +542,3 @@ msrc() {
 }
 
 msrc -s
-
-# Load System BASH Completions: Standard
-[ -r "/etc/bash_completion" ] && source "/etc/bash_completion"
-
-# Load System BASH Completions: Termux
-[ -r "/data/data/com.termux/files/usr/share/bash-completion/bash_completion" ] && source "/data/data/com.termux/files/usr/share/bash-completion/bash_completion"
