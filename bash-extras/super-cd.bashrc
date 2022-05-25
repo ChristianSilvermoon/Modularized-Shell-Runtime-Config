@@ -189,7 +189,7 @@ cd() {
 
 			echo -e "\n    Super CD Options:"
 
-			printf "      %-17s %s\n" "-b" "Navigate using \"bd\" insteead"
+			printf "      %-17s %s\n" "-b" "Navigate using \"bd\" instead"
 			if [ ! "$(command -v bd)" ]; then
 				printf "      %-17s %s\n" "" "  unavailable: \"bd\" isn't in \$PATH!"
 			fi
