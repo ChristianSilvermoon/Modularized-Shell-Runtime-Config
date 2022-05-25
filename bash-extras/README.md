@@ -68,7 +68,6 @@ Overrides the `cd` command to make it more **SUPER** with a variety of new featu
 
 Its options are displayed with `cd --help` or `cd -?` alongside vanilla `cd` options.
 
-If you have `lolcat` in your path, Super CD's help contents will also rainbow-ified.
 
 ### History
 `cd` will automatically push your new `$PWD`
@@ -100,27 +99,42 @@ By default, Super CD will define the following bookmarks:
 
 Bookmarks are stored/refererenced from an *Associative Array* named `$CD_BKM` (CD Bookmarks)
 
-If `$CD_BKM` already exists, then Super CD will not create the default bookmarks
+If `$CD_BKM` already populated, then Super CD will not create the default bookmarks
 
-Try adding your own `.bashrc` that just defines bookmarks that loads *after* Super CD
+Super CD saves and loads bookmarks from `$CD_BKM_FILE` (`~/.super-cd-bookmarks` by default).
 
-Alternatively, you can customize your Super CD `.bashrc`
-
-If you want to create the array in your own config, do so with `declare -gA CD_BKM` to create the required global Associative Array.
+The bookmarks file syntax is:
+```
+# Comment
+bookmark-name /path/to/directory
+other-bookmark /path/to/directory
+```
+You may **NOT** have a space or % in your bookmark names.
+Do **NOT** include more than one space after the bookmark name.
 
 Example Usage:
 ```bash
-# Adding/Changing Bookmarks
-CD_BKM["git"]="$HOME/Dev/my-github"
-CD_BKM["www"]="/var/www/html"
+# Reading Bookmarks from $CD_BKM_FILE
+cd -R
 
-# Using Bookmarks
-cd %git    # IF `./%git` does not exist
-cd -f git  # ANY TIME
+# Adding/Changing Bookmarks
+cd +m pwd
+cd +m git "$HOME/Dev/my-github"
+cd +m www "/var/www/html"
 
 # Removing Bookmarks
-unset CD_BKM["git"]
-unset CD_BKM["www"]
+cd -m pwd
+cd -m git
+cd -m www
+
+# Saving Bookmarks to $CD_BKM_FILE
+cd -s
+
+# Using Bookmarks
+cd %git                      # IF `./%git` does not exist
+cd -f git                    # ANY TIME
+cd "$(cd -F git)/something"  # Subdirectory of bookmark
+
 ```
 
 When listing Bookmarks, a bookmark corresponding to your current directory is listed in green and invalid bookmarks are listed in red. 
