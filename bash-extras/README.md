@@ -118,12 +118,12 @@ Example Usage:
 cd -R
 
 # Adding/Changing Bookmarks
-cd +m pwd
+cd +m pwd  # Bookmark Current Directry as 'pwd'
 cd +m git "$HOME/Dev/my-github"
 cd +m www "/var/www/html"
 
 # Removing Bookmarks
-cd -m pwd
+cd -m      # Remove bookmark for current directory
 cd -m git
 cd -m www
 
