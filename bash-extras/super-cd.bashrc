@@ -18,12 +18,14 @@ cd() {
 		-f)
 			if [ ! "$2" ]; then
 				local x
+				(
 				echo -e "\e[1mFavorites/Bookmarks List:\e[22m\n"
 				for x in "${!CD_BKM[@]}"; do
 					[ "${CD_BKM[$x]}" = "$PWD" ] && echo -en "\e[32m"
 					[ -d "${CD_BKM[$x]}" ] || echo -en "\e[31m"
 					printf "  \e[1m%s\e[22;37m\n    %s\n\n" "$x" "${CD_BKM[$x]}"
 				done
+				) | less -rF
 			else
 				if [ -d "${CD_BKM[$2]}" ]; then
 					cd -- "${CD_BKM[$2]}"
