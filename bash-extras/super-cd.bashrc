@@ -17,15 +17,46 @@ cd() {
 			;;
 		-f)
 			if [ ! "$2" ]; then
+				# FZF or Select if possible
+				local list
 				local x
-				(
-				echo -e "\e[1mFavorites/Bookmarks List:\e[22m\n"
+				local length=0
+				local selection
+
+
+				# Build Pretty List for fzf & select
 				for x in "${!CD_BKM[@]}"; do
-					[ "${CD_BKM[$x]}" = "$PWD" ] && echo -en "\e[32m"
-					[ -d "${CD_BKM[$x]}" ] || echo -en "\e[31m"
-					printf "  \e[1m%s\e[22;37m\n    %s\n\n" "$x" "${CD_BKM[$x]}"
+						[ "${#x}" -gt "$length" ] && length="${#x}"
 				done
-				) | less -rF
+
+				for x in "${!CD_BKM[@]}"; do
+					list+="$(printf "%-$((length))s  %s" "${x}" "${CD_BKM[$x]}")"$'\n'
+				done
+				
+				if [ "$(command -v fzf)" ]; then
+					# Fuzzy Finder is present
+					selection="$(echo -n "$list" | fzf --header "Select Bookmark To Navigate To [CTRL+C To Cancel]" | cut -d' ' -f 1)"
+
+					if [ "$selection" ]; then
+						cd -f "$selection"
+					else
+						echo -e "\e[2;3mCanceled...\e[22;23m" 1>&2
+					fi
+				else
+					# Fallback on BASH Select
+					local PS3="$(echo -en "\e[1mSelect Bookmark To Navigate To [CTRL+C To Cancel]: \e[22m")"
+					
+					local IFS=$'\n'
+					select selection in $list; do
+						if [ "$selection" ]; then
+							cd -f "$(echo "$selection" | cut -d' ' -f 1)"
+						else
+							echo -e "\e[2;3mCanceled...\e[22;23m" 1>&2
+						fi
+						break
+					done
+				fi
+
 			else
 				if [ -d "${CD_BKM[$2]}" ]; then
 					cd -- "${CD_BKM[$2]}"
@@ -36,7 +67,15 @@ cd() {
 			;;
 		-F)
 			if [ ! "$2" ]; then
-				cd -f
+				local x
+				(
+				echo -e "\e[1mFavorites/Bookmarks List:\e[22m\n"
+				for x in "${!CD_BKM[@]}"; do
+					[ "${CD_BKM[$x]}" = "$PWD" ] && echo -en "\e[32m"
+					[ -d "${CD_BKM[$x]}" ] || echo -en "\e[31m"
+					printf "  \e[1m%s\e[22;37m\n    %s\n\n" "$x" "${CD_BKM[$x]}"
+				done
+				) | less -rF
 				return
 			elif [ "${CD_BKM[$2]}" ]; then
 				echo "${CD_BKM[$2]}"
@@ -194,9 +233,9 @@ cd() {
 				printf "      %-17s %s\n" "" "  unavailable: \"bd\" isn't in \$PATH!"
 			fi
 			printf "      %-17s %s\n" "-d" "Equivalent to running \"dirs -v\""
-			printf "      %-17s %s\n" "-f [bookmark]" "Print bookmark list or navigate to bookmark"
+			printf "      %-17s %s\n" "-f [bookmark]" "Select and/or navigate to bookmark"
 			printf "      %-17s %s\n" "" "  OR \"cd %bookmark\" if no dir named \"%bookmark\" exists!"
-			printf "      %-17s %s\n" "-F [bookmark]" "Print bookmark path"
+			printf "      %-17s %s\n" "-F [bookmark]" "Print bookmark list or path"
 			printf "      %-17s %s\n" "+m <name> [dir]" "Add Bookmark to \$CD_BKM"
 			printf "      %-17s %s\n" "-m <name>" "Remove Bookmark from \$CD_BKM"
 			printf "      %-17s %s\n" "-r" "Ascend to root of the current filesystem/subvolume."

@@ -118,23 +118,27 @@ Example Usage:
 cd -R
 
 # Adding/Changing Bookmarks
-cd +m pwd  # Bookmark Current Directry as 'pwd'
-cd +m git "$HOME/Dev/my-github"
-cd +m www "/var/www/html"
+cd +m pwd                        # Bookmark Current Directry as "pwd"
+cd +m git "$HOME/Dev/my-github"  # Bookmark a different directory as "git"
+cd +m www "/var/www/html"        # Bookmark a different directory as "www"
 
 # Removing Bookmarks
 cd -m      # Remove bookmark for current directory
-cd -m git
-cd -m www
+cd -m git  # Remove bookmark named "git"
+cd -m www  # Remove bookmark named "www"
 
 # Saving Bookmarks to $CD_BKM_FILE
 cd -s
 
-# Using Bookmarks
-cd %git                      # IF `./%git` does not exist
-cd -f git                    # ANY TIME
-cd "$(cd -F git)/something"  # Subdirectory of bookmark
+# Getting Info About Bookmarks
+cd -F       # List all booknmarks and their target pathes
+cd -F git   # Print the target path of a bookmark named "git"
 
+# Using Bookmarks
+cd %git                      # Navigate to bookmark named "git" IF `./%git` does not exist
+cd -f git                    # Navigate to bookmark named "git" any time
+cd "$(cd -F git)/something"  # Navigate to a Subdirectory of bookmark
+cd -f                        # Select and navigate to a bookmark using fzf (or BASH select if fzf isn't available)
 ```
 
 When listing Bookmarks, a bookmark corresponding to your current directory is listed in green and invalid bookmarks are listed in red. 
