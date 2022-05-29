@@ -78,7 +78,7 @@ But now the Directory Stack is tracking everywhere you've been in your current s
 
 `cd ~2` will take you back to the previous directory!
 
-`cd -d` will run `dirs -v`, allowing you to see the directory stack with relevant numbers.
+`cd -d` will allow you to select a directory from the Directory Stack using `fzf` if available, or regular BASH `select` if it isn't.
 
 ### Favorites / Bookmarks
 Bookmarks at the GUI are great, but what about in the terminal?

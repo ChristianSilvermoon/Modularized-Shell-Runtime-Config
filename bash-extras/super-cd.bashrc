@@ -12,9 +12,6 @@ cd() {
 	fi
 
 	case $1 in
-		-d)
-			dirs -v
-			;;
 		-f)
 			if [ ! "$2" ]; then
 				# FZF or Select if possible
@@ -84,6 +81,36 @@ cd() {
 				return 1
 			fi
 			;;
+		-d)
+			local list="$(dirs -p -l | sort -u)"
+			local x
+			local selection
+
+
+			if [ "$(command -v fzf)" ]; then
+				# Fuzzy Finder is present
+				selection="$(echo -n "$list" | fzf --header "Select Directory To Navigate To [CTRL+C To Cancel]")"
+
+				if [ "$selection" ]; then
+					cd "$selection"
+				else
+					echo -e "\e[2;3mCanceled...\e[22;23m" 1>&2
+				fi
+			else
+				# Fallback on BASH Select
+				local PS3="$(echo -en "\e[1mSelect Directory To Navigate To [CTRL+C To Cancel]: \e[22m")"
+
+				local IFS=$'\n'
+				select selection in $list; do
+					if [ "$selection" ]; then
+						cd "$selection"
+					else
+						echo -e "\e[2;3mCanceled...\e[22;23m" 1>&2
+					fi
+					break
+				done
+			fi
+			;;	
 		-b)
 			if [ ! "$(command -v bd)" ]; then
 				echo "BD isn't in \$PATH!" 1>&2
@@ -232,7 +259,7 @@ cd() {
 			if [ ! "$(command -v bd)" ]; then
 				printf "      %-17s %s\n" "" "  unavailable: \"bd\" isn't in \$PATH!"
 			fi
-			printf "      %-17s %s\n" "-d" "Equivalent to running \"dirs -v\""
+			printf "      %-17s %s\n" "-d" "Select a directory from the Directory Stack"
 			printf "      %-17s %s\n" "-f [bookmark]" "Select and/or navigate to bookmark"
 			printf "      %-17s %s\n" "" "  OR \"cd %bookmark\" if no dir named \"%bookmark\" exists!"
 			printf "      %-17s %s\n" "-F [bookmark]" "Print bookmark list or path"
