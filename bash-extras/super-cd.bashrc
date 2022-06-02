@@ -6,7 +6,7 @@
 
 # Modify CD behavior
 cd() {
-	if [ "${1:0:1}" = "%" ] && [ ! -d "$1" ]; then
+	if [ "${1:0:1}" = "%" ] && [ ! -e "$1" ]; then
 		cd -f "${1:1}"
 		return "$?"
 	fi
@@ -54,12 +54,12 @@ cd() {
 					done
 				fi
 
+			elif [ "${CD_BKM[$2]}" ]; then
+				# Navigate to bookmark
+				cd -- "${CD_BKM[$2]}"
 			else
-				if [ -d "${CD_BKM[$2]}" ]; then
-					cd -- "${CD_BKM[$2]}"
-				else
-					echo "\"$2\" is not a bookmark/favorite or target directory does not exist"
-				fi
+				echo "No such bookmark: $2"
+				return 1
 			fi
 			;;
 		-F)
@@ -163,10 +163,8 @@ cd() {
 
 			[ "$3" ] && dir="$3" || dir="$PWD"
 
-			if [ -d "$dir" ]; then
-				echo "Bookmarked \"${dir}\" as \"${bookmark}\""
-				CD_BKM[$bookmark]="$dir"
-			fi
+			CD_BKM[$bookmark]="$dir"
+			echo "Bookmarked \"${dir}\" as \"${bookmark}\""
 			;;	
 		-r)
 			cd "$(stat -c %m ./)"
@@ -189,11 +187,7 @@ cd() {
 				bookmark=$(echo "$line" | cut -d' ' -f 1)
 				dir=$(echo "$line" | cut -d' ' -f 2-)
 
-				if [ -d "$dir" ]; then
-					CD_BKM[$bookmark]="$dir"
-				else
-					echo "Bookmark \"$bookmark\" not loaded; Directory does not exist" 1>&2
-				fi
+				CD_BKM[$bookmark]="$dir"
 			done
 
 			;;
@@ -272,9 +266,11 @@ cd() {
 			printf "      %-17s %s\n" "-?, --help" "Display these help messages."
 
 			printf "\n    Super CD Notes:\n" 
-			printf "      * Super CD tracks history using the Directory Stack\n"
-			printf "      * Super CD tracks bookmarks using \$CD_BKM (An Associative Array)\n"
-			printf "      * Super CD reads bookmarks form the file \$CD_BKM_FILE\n"
+			printf "      * History is tracked using the Directory Stack\n"
+			printf "      * Bookmarks are tracked using \$CD_BKM (An Associative Array)\n"
+			printf "      * Bookmarks are read/saved from/to the file defined by \$CD_BKM_FILE\n"
+			printf "      * Will auto prompt for creation of non-existent directories\n"
+				
 				
 			printf "\n    Bookmark File (\$CD_BKM_FILE):\n"
 			if [ "$CD_BKM_FILE" ]; then
@@ -285,6 +281,50 @@ cd() {
 
 			;;
 		*)
+			local dir
+			local yorn
+			local nargproc
+
+			for x; do
+				[ "$x" = "--" ] && nargproc=1
+				[ ! "$nargproc" ] && [[ $x =~ ^-(L|P|e|@)$ ]] && continue
+				dir="$x"
+			done
+
+			# Offer to create directory if it doesn't exist
+			if [ "$dir" ]&&[ ! -e "$dir" ]; then
+				# Find at what point the directory does not exist
+				local bpath
+				local gpath
+				local dcount=0
+				local IFS='/'
+				
+				for x in $dir; do
+					dcount="$((dcount + 1))"
+					if [ -d "${gpath}/$x" ]; then
+						gpath+="$x/"
+					else
+						bpath="$(echo "$dir" | cut -d '/' -f ${dcount}-)/"
+						break
+					fi
+
+				done
+				
+				echo -e "Directory does not exist: \e[1;32m${gpath}\e[31m${bpath}\e[22;37m"
+				tput sc
+				echo -n "Do you want to create it? [Y/N*] "
+				read -rsn1 yorn
+				tput rc
+
+				if [ "$yorn" = "y" ]||[ "$yorn" = "Y" ]; then
+					mkdir -p "$dir" || return "$?"
+					echo -e "Created Directory: \e[2;1m${gpath}\e[22;1;36m${bpath}\e[22;37m"
+				else
+					echo "Directory not created & Directory Change aborted"
+					return 1
+				fi
+			fi
+
 			builtin cd "$@"
 			[ "$OLDPWD" != "$PWD" ] && pushd "$PWD" >/dev/null
 			;;

@@ -68,7 +68,6 @@ Overrides the `cd` command to make it more **SUPER** with a variety of new featu
 
 Its options are displayed with `cd --help` or `cd -?` alongside vanilla `cd` options.
 
-
 ### History
 `cd` will automatically push your new `$PWD`
 
@@ -154,6 +153,16 @@ You can also ascend to the root of your current filesystem or subvolume with `cd
 
 If you use `cd -b ho` Super CD will attempt to use [bd](https://github.com/vigneshwaranr/bd) to find a parent directory to go to.
 
+### Prompt For Directory Creation
+
+Tired of running this?
+```bash
+mkdir newdir
+cd newdir
+```
+
+Now you don't have to!
+With Super CD just type `cd newdir` and you'll get a yes/no prompt for its creation like magic!
 
 ## `terminology-extensions.bashrc`
 If you're using [Terminology](https://github.com/borisfaure/terminology), the EFL-based Terminal Emulator...
