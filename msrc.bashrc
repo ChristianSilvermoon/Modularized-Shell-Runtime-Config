@@ -405,7 +405,7 @@ msrc() {
 				[ ! -x "$MSRC_FILE" ] && continue
 				
 				# Store time before execution
-				if [ "$command -v bc" ]; then
+				if [ "$(command -v bc)" ]; then
 					sloadtime="$EPOCHREALTIME"
 				else
 					sloadtime="$EPOCHSECONDS"
