@@ -316,7 +316,7 @@ cd() {
 				read -rsn1 yorn
 				tput rc
 
-				if [ "$yorn" = "y" ]||[ "$yorn" = "Y" ]; then
+				if [ "${yorn,,}" = "y" ]; then
 					mkdir -p "$dir" || return "$?"
 					echo -e "Created Directory: \e[2;1m${gpath}\e[22;1;36m${bpath}\e[22;37m"
 				else
