@@ -36,7 +36,7 @@
 [ -r "/data/data/com.termux/files/usr/share/bash-completion/bash_completion" ] && source "/data/data/com.termux/files/usr/share/bash-completion/bash_completion"
 
 # MSRC Directory Setup
-[ "$BASH_MSRC_DIR" ] || export BASH_MSRC_DIR="$HOME/.bashrc.d"
+export BASH_MSRC_DIR="${BASH_MSRC_DIR:="$HOME/.bashrc.d"}"
 [ -d "$BASH_MSRC_DIR" ] || mkdir -p "$BASH_MSRC_DIR" 
 
 # BASH Completion
@@ -58,7 +58,7 @@ _msrc() {
 			local scripts=""
 			
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
-				scripts+="$(basename "$f" | sed 's/\.bashrc$//g') "
+				scripts+="$(basename "${f/%.bashrc/}") "
 			done
 
 			COMPREPLY=($(
@@ -71,7 +71,7 @@ _msrc() {
 			local scripts=""
 			
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
-				[ -x "$f" ] && scripts+="$(basename "$f" | sed 's/\.bashrc$//g') "
+				[ -x "$f" ] && scripts+="$(basename "${f%.bashrc}") "
 			done
 
 			COMPREPLY=($(
@@ -83,7 +83,7 @@ _msrc() {
 		+x|enable)
 			local scripts=""
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
-				[ ! -x "$f" ] && scripts+="$(basename "$f" | sed 's/\.bashrc$//g') "
+				[ ! -x "$f" ] && scripts+="$(basename "${f/%.bashrc/}") "
 			done
 
 			COMPREPLY=($(
@@ -173,7 +173,7 @@ msrc() {
 				local i
 
 				for i in $BASH_MSRC_DIR/*.bashrc; do
-					editable_files+=( "$(basename "$i" | sed 's/\.bashrc$//g')" )
+					editable_files+=( "$(basename "${i%.bashrc}")" )
 				done
 
 				local PS3="$(echo -e "\e[1mEnter a #: \e[22m")"
@@ -276,7 +276,7 @@ msrc() {
 						name=$(echo -en "\e[31;1m")
 					fi
 
-					name+=$(basename "$x" | sed 's/\.bashrc$//g')
+					name+=$(basename "${x/%.bashrc/}")
 					desc=$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)
 					[ "$longestName" -lt "${#name}" ] && longestName=${#name}
 					names+=( "$name" )
@@ -319,7 +319,7 @@ msrc() {
 
 			# Get data on all files
 			for x in $BASH_MSRC_DIR/*; do
-				tname=( "$(command basename "$x" | sed 's/\.bashrc$//g')" )
+				tname=( "$(command basename "${x/%.bashrc/}")" )
 				tdesc="$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)"
 
 				nameLength=$(( $(echo "$tname" | wc -c) - 1))
