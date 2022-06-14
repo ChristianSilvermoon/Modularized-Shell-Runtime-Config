@@ -25,6 +25,7 @@ body:
       required: true
   - type: input
     id: distro
+    attributes:
       label: Distribution
       description: What Operating System is it specifically?
       placeholder: Linux Mint 20.3 (Una), Arch Linux, Android 9 + Termux 0.118.0 (F_DROID), etc
