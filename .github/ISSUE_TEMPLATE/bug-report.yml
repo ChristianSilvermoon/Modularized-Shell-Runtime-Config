@@ -64,7 +64,7 @@ body:
       options:
         - label: I have searched through the Open Issues and I'm pretty sure mine isn't a duplicate
           required: true
-        - label: I have verified that my version of MSRC and enabled extras are up to date with the Master Branch
+        - label: My version of MSRC and Enabled Default Extras are up to date with the Master Branch
           required: true
         - label: My Issue is related to one of MSRC's Default Extra Configs (and I've specified which one above)
         - label: My issue actually affects multiple different platforms!
