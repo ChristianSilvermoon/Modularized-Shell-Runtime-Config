@@ -8,6 +8,8 @@ The main config `msrc.bashrc`, `msrc.zshrc`, etc. is meant to replace your origi
 
 From there the script will automatically source executable files ending in `.bashrc` that it finds in: `~/.bashrc.d/`
 
+**NOTE:** The ZSH version of MSRC is *not as well maintained* and may be missing features or functionality. This project was orignally created with BASH in mind.
+
 ## Changing Your Config Directory
 This used to be based on the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) in earlier versions of this project, however, that was dropped in favor of using `~/.bashrc.d` and so on for simplicity and not interfering with XDG Variable usage.
 
