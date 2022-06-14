@@ -497,7 +497,11 @@ msrc() {
 
 			elif [ "$PREFIX" = "/data/data/com.termux/files/usr" ]; then
 				# Special handling for Termux
-				params[platform]="Termux $TERMUX_VERSION ($TERMUX_APK_RELEASE)"
+				if [ "$(command -v getprop)" ]; then
+					OSR[NAME]="Android"
+					OSR[VERSION]=$(getprop ro.build.version.release)
+				fi
+				params[platform]="${OSR[NAME]:+${OSR[NAME]}${OSR[VERSION]:+ ${OSR[VERSION]}} + Termux${TERMUX_VERSION:+ $TERMUX_VERSION}}${TERMUX_APK_RELEASE:+ ($TERMUX_APK_RELEASE)}"
 			fi
 
 			params[shopts]="${BASHOPTS//:/$'\n'}"
