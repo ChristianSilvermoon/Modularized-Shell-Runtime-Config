@@ -36,7 +36,7 @@
 [ -r "/data/data/com.termux/files/usr/share/bash-completion/bash_completion" ] && source "/data/data/com.termux/files/usr/share/bash-completion/bash_completion"
 
 # MSRC Directory Setup
-export BASH_MSRC_DIR="${BASH_MSRC_DIR:="$HOME/.bashrc.d"}"
+BASH_MSRC_DIR="${BASH_MSRC_DIR:="$HOME/.bashrc.d"}"
 [ -d "$BASH_MSRC_DIR" ] || mkdir -p "$BASH_MSRC_DIR" 
 
 # BASH Completion
