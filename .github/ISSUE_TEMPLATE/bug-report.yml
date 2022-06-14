@@ -20,7 +20,7 @@ body:
     attributes:
       label: System Architecture
       description: What type of system are you running on?
-      placeholder: Linux 5.13.0-48-generic x86_64 (Try: uname -spr)
+      placeholder: "Linux 5.13.0-48-generic x86_64 (Try: uname -spr)"
     validations:
       required: true
   - type: input
