@@ -5,8 +5,8 @@ labels: ["bug", "needs review"]
 body:
   - type: markdown
     attributes:
-    value: |
-      Thank you for taking the time to report your Issue!
+      value: |
+        Thank you for taking the time to report your Issue!
   - type: input
     id: shell
     attributes:
@@ -51,7 +51,7 @@ body:
     attributes:
       label: Be sure to check all that apply
       description: If any of thse apply to your situation, please check them!
-      Options:
+      options:
         - label: I have searched through the Open Issues and I'm pretty sure mine isn't a duplicate
           required: true
         - label: My Issue is related to one of MSRC's Default Extra Configs (and I've specified which one above)
