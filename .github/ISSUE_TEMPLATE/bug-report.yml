@@ -3,56 +3,56 @@ description: Report a Bug or Problem
 title: "[Bug]: "
 labels: ["bug", "needs review"]
 body:
-	- type: markdown
-	  attributes:
-		value: |
-			Thank you for taking the time to report your Issue!
-	- type: input
-		id: shell
-		attributes:
-			label: Shell Name & Version
-			description: What Shell Are You Running?
-			placeholder: bash 5.0.17(1)-release
-		validations:
-			required: true
-	- type: input
-		id: system
-		attributes:
-			label: System Architecture
-			description: What type of system are you running on?
-			placeholder: Linux 5.13.0-48-generic x86_64 (Try: uname -spr)
-		validations:
-			required: true
-	- type: input
-		id: distro
-			label: Distribution
-			description: What Operating System is it specifically?
-			placeholder: Linux Mint 20.3 (Una), Arch Linux, Android 9 + Termux 0.118.0 (F_DROID), etc
-		validations:
-			required: true
-	- type: textarea
-		id: what-happened
-		attributes:
-			label: What went wrong?
-			description: |
-				Describe the nature of your issue in detail.
-				What were you doing when it happened?
-				How often and when does it occur?
-		validations:
-			required: true
-	- type: textarea
-		id: expected-result
-		attributes:
-			label: What SHOULD have happened?
-			description: What do you believe should have happened?
-	- type: checkboxes
-		id:  boxes
-		attributes:
-			label: Be sure to check all that apply
-			description: If any of thse apply to your situation, please check them!
-			Options:
-				- label: I have searched through the Open Issues and I'm pretty sure mine isn't a duplicate
-					required: true
-				- label: My Issue is related to one of MSRC's Default Extra Configs (and I've specified which one above)
-				- label: My issue actually affects multiple different platforms!
-				- label: My issue is severe (Data Loss, etc.)
+  - type: markdown
+    attributes:
+    value: |
+      Thank you for taking the time to report your Issue!
+  - type: input
+    id: shell
+    attributes:
+      label: Shell Name & Version
+      description: What Shell Are You Running?
+      placeholder: bash 5.0.17(1)-release
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: System Architecture
+      description: What type of system are you running on?
+      placeholder: Linux 5.13.0-48-generic x86_64 (Try: uname -spr)
+    validations:
+      required: true
+  - type: input
+    id: distro
+      label: Distribution
+      description: What Operating System is it specifically?
+      placeholder: Linux Mint 20.3 (Una), Arch Linux, Android 9 + Termux 0.118.0 (F_DROID), etc
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What went wrong?
+      description: |
+        Describe the nature of your issue in detail.
+        What were you doing when it happened?
+        How often and when does it occur?
+    validations:
+      required: true
+  - type: textarea
+    id: expected-result
+    attributes:
+      label: What SHOULD have happened?
+      description: What do you believe should have happened?
+  - type: checkboxes
+    id:  boxes
+    attributes:
+      label: Be sure to check all that apply
+      description: If any of thse apply to your situation, please check them!
+      Options:
+        - label: I have searched through the Open Issues and I'm pretty sure mine isn't a duplicate
+          required: true
+        - label: My Issue is related to one of MSRC's Default Extra Configs (and I've specified which one above)
+        - label: My issue actually affects multiple different platforms!
+        - label: My issue is severe (Data Loss, etc.)
