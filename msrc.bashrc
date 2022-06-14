@@ -528,7 +528,7 @@ msrc() {
 			echo "$url"
 			echo -e "\n\e[2;3mNote: This link will autofill fields of the Issue Report with your System Info\e[22;23m\n"
 
-			if [ "$DISPLAY" ]&&[ "$(command -v xdg-open)" ]||[ "$(command -v termux-open-url)"; then
+			if [ "$DISPLAY" ]&&[ "$(command -v xdg-open)" ]||[ "$(command -v termux-open-url)" ]; then
 				local yorn
 				echo -en "\e[1mOpen this link in your default browser now? (Y/N*) \e[22m"
 				read -rn1 yorn
