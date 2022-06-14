@@ -539,6 +539,5 @@ msrc() {
 			;;
 	esac
 
-}
-
+} && readonly -f msrc # Prevent changes at runtime
 msrc -s
