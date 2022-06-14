@@ -47,7 +47,7 @@ _msrc() {
 
 	if [ "$cword" = "1" ]; then
 		COMPREPLY=($(
-			compgen -W '-? -l -L -s -t -o -x -n -r -m -c -e +x -C -S --help cd restart ls list source times order enable disable new rm remove mv rename check edit' -- "$cur"
+			compgen -W '-? -i -l -L -s -t -o -x -n -r -m -c -e +x -C -S --help cd issue restart ls list source times order enable disable new rm remove mv rename check edit' -- "$cur"
 		))
 		return
 	fi
@@ -108,6 +108,9 @@ _msrc() {
 
 # MSRC Function
 msrc() {
+	local -r MSRC_SRC="https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config"
+	local -r MSRC_ISSUE_URL="https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config/issues"
+	
 	case "$1" in
 		"new"|"-n")
 			if [ "$(echo "$2" | grep ".bashrc$")" ]; then
@@ -470,11 +473,78 @@ msrc() {
 		"-o"|"order")
 			echo "$MSRC_LOAD_TIMES" | cut -d ' ' -f 3-
 			;;
+		"issue"|"-i")
+			local OSRF
+			local url="${MSRC_ISSUE_URL}/new?template=bug-report.yml&labels=bug%2Cneeds+review&template=bug-report.yml&title=[Bug]%3A+"
+			local -A OSR
+			local x
+			local k
+			local v
+			local -A params
+
+			# Get Distro Info	
+			if [ -f /etc/os-release ]; then
+				mapfile -t OSRF </etc/os-release
+				for x in "${OSRF[@]}"; do
+					k="${x/%=*/}"
+					v="${x/#*=/}"
+					v="${v//\"/}"
+					v="${v//\'/}"
+					OSR["$k"]="$v"
+				done
+
+				params[platform]="${OSR[NAME]:-}${OSR[VERSION]:+ ${OSR[VERSION]}}"
+
+			elif [ "$PREFIX" = "/data/data/com.termux/files/usr" ]; then
+				# Special handling for Termux
+				OSR[name]="Termux $TERMUX_VERSION ($TERMUX_APK_RELEASE)"
+			fi
+
+			params[shopts]="${BASHOPTS//:/$'\n'}"
+			params[shell]="${BASH/#*\//} $BASH_VERSION"
+			params[system]="$(uname -spr)"
+
+
+			# Special Thanks For URL Encoding
+			#  * https://askubuntu.com/questions/53770/how-can-i-encode-and-decode-percent-encoded-strings-on-the-command-line#answer-295312
+			#  * https://askubuntu.com/users/78223/kenorb
+			#
+			#  Question was asked by someone else; but the answer is very useful.
+			for x in "${!params[@]}"; do
+				k=
+				for ((v = 0; v < ${#params[$x]}; v++)); do
+					local c="${params[$x]:v:1}"
+					case $c in
+						[a-zA-Z0-9.~_-]) k+=$(printf "$c") ;;
+						*) k+=$(printf '%%%02X' "'$c") ;;
+					esac
+				done
+
+				url+="&$x=$k"
+
+			done
+			
+			echo -e "\e[1mYou can report your issue here:\e[22m"
+			echo "$url"
+			echo -e "\n\e[2;3mNote: This link will autofill fields of the Issue Report with your System Info\e[22;23m\n"
+
+			if [ "$DISPLAY" ]&&[ "$(command -v xdg-open)" ]||[ "$(command -v termux-open-url)"; then
+				local yorn
+				echo -en "\e[1mOpen this link in your default browser now? (Y/N*) \e[22m"
+				read -rn1 yorn
+				echo ""
+				if [ "${yorn,,}" = "y" ]; then
+					echo -e "\e[2;3mOpening Link...\e[22;23m"
+					$(command -v termux-open-url || command -v xdg-open || echo echo Cannot open ) "$url" 2>/dev/null
+				fi
+			fi
+
+			;;
 		"--help"|"-?")
 			echo -e "\e[1mInfo:\e[0m"
 			echo -e "MSRC - Modularized Shell Runtime Configuration"
-			echo -e "https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config\n"
-			echo -e "\e[1mUSAGE:\e[0m\nmsrc <options>\n"
+			echo "$MSRC_SRC"
+			echo -e "\n\e[1mUSAGE:\e[0m\nmsrc <options>\n"
 
 			echo -e "\e[1mARGUMENTS:\e[0m"
 			
@@ -504,6 +574,8 @@ msrc() {
 			fi
 			echo -ne "\e[22;23;37m"
 
+
+			printf "  %-28s %s\n" "-i, issue" "Submit An Issue Report on GitHub"
 			printf "  %-28s %s\n" "-l, ls, list [--fancy]" "List config files, optionally with pretty border."
 			printf "  %-28s %s\n" "-L" "Equivalent to 'msrc ls --fancy' (pretty border)."
 			printf "  %-28s %s\n" "-m, mv, rename <old> <new>" "Rename a config file"
