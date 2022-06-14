@@ -49,6 +49,9 @@ In some of your BASHRC files, you might want to iterate over something using a *
 
 If you'd like to confine your variables to be confined to the scope of when your BASHRC file is sourced, you may define them as **Local Variables**. That might sound strange if your BASHRC file does not contain a function, however they are *loaded* by a function, so the **local** keyword is valid.
 
+There are some variables that exist **only** for a `.bashrc` file loaded by `msrc` to reference:
+* `$MSRC_CONFIG_FILE` — Variables local to msrc function loading your configs. Tis is equivalent to the path of the file currently being sourced, but with the extenion `.config` instead of `.bashrc`
+
 It is also very important that you do **NOT** overwrite any of the following variables names:
 * `$MSRC_LOAD_TIMES` — Global variable which stores information used by the `msrc` function to display how long each BASHRC file took to finish execution
 * `$MSRC_LOAD_TIMES_TOTAL` — Global variable which stores information used by the `msrc` function to display how long each BASHRC file took to finish execution
@@ -58,6 +61,21 @@ It is also very important that you do **NOT** overwrite any of the following var
 * `$tstime` — Variable local to `msrc` function containing the start time of the entire BASHRC sourcing process; used to calculate total load time.
 * `$EPOCHSECONDS` — See BASH's Manual Page
 * `$EPOCHREALTIME` — See BASH's Manual Page
+
+### Config Files For Your `.bashrc` files
+*You dawg, I heard you liked config files, so I put some config files in your config files so you can config while you config!*
+
+It is sometimes important that your `.bashrc` files can store additional data that persists across multiple sessions.
+
+There are **multiple solutions** to this problem.
+
+The **prefered solution** is to reference `$MSRC_CONFIG_FILE` for storing/loading config data. This variable exists **ONLY** at the time of sourcing, if you need continued access to its contents, store the value in your own **Global Variable**
+
+This solution means that `$BASH_MSRC_DIR/00_my-super-awesome-thing.bashrc` should use `$BASH_MSRC_DIR/00_my-super-awesome-thing.config` as it's config file.
+
+If this solution is not optimal; you can also follow the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
+
+You're free to realistically store things wherever you like, it is *your* computer, after all; but these are the recommended guidelines.
 
 ### Calling Overidden Built-ins, Commands, and Aliased Commands
 Though not necessarily required or needed, some Config files may **override** shell built-ins, such as `cd`

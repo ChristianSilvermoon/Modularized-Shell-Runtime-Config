@@ -143,7 +143,17 @@ msrc() {
 				echo "The file \"$2.bashrc\" does not exist! Please specify a different name." 1>&2
 				return 1
 			else
-				rm -iv "$BASH_MSRC_DIR/$2.bashrc"
+				local yorn
+
+				echo -n "Remove \"$2\" "
+				[ -f "$BASH_MSRC_DIR/$2.config" ] && echo -n "and its associated config file? "
+				echo -n "(Y/N*) "
+				read -rsn1 yorn
+				echo ""
+				[ "${yorn,,}" = "y" ] || return
+
+				rm -v "$BASH_MSRC_DIR/$2.bashrc"
+				[ -f "$BASH_MSRC_DIR/$2.config" ] && rm -v "$BASH_MSRC_DIR/$2.config"
 				return 0
 			fi
 			;;
@@ -159,7 +169,25 @@ msrc() {
 				echo "The file \"$2.bashrc\" does not exist! Please specify a different name." 1>&2
 				return 1
 			else
-				mv -iv "$BASH_MSRC_DIR/$2.bashrc" "$BASH_MSRC_DIR/$3.bashrc"
+				local yorn
+				echo -n "Rename \"$2\" to \"$3\" (Y/N*) "
+				read -rsn1 yorn
+				echo ""
+
+				# Prompt for confirmation
+				[ "${yorn,,}" = "y" ] || return
+
+				# Prompt for overwrite
+				if [ -f "$3.bashrc" ]; then
+					echo -n "File \"$3\" Already exists! Overwrite? (Y/N*) "
+					read -rsn1 yorn
+					echo ""
+					[ "${yorn,,}" = "y" ]|| return
+				fi
+				
+				# Move both the `.bashrc` and `.config` if it exists
+				mv -v "$BASH_MSRC_DIR/$2.bashrc" "$BASH_MSRC_DIR/$3.bashrc"
+				[ -f "$BASH_MSRC_DIR/$2.config" ] && mv -v "$BASH_MSRC_DIR/$2.config" "$BASH_MSRC_DIR/$3.config"
 				return 0
 			fi
 			
@@ -272,7 +300,7 @@ msrc() {
 				local names=()
 				local descs=()
 
-				for x in $BASH_MSRC_DIR/*; do
+				for x in $BASH_MSRC_DIR/*.bashrc; do
 					if [ -x "$x" ]; then
 						name=$(echo -en "\e[32;1m")
 					else
@@ -321,7 +349,7 @@ msrc() {
 			local tableBar=""
 
 			# Get data on all files
-			for x in $BASH_MSRC_DIR/*; do
+			for x in $BASH_MSRC_DIR/*.bashrc; do
 				tname=( "$(command basename "${x/%.bashrc/}")" )
 				tdesc="$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)"
 
@@ -403,6 +431,7 @@ msrc() {
 			fi
 
 			local MSRC_FILE
+			local MSRC_FILE_CONFIG
 			for MSRC_FILE in $BASH_MSRC_DIR/*.bashrc; do
 				# Skip Iteration if not executable
 				[ ! -x "$MSRC_FILE" ] && continue
@@ -413,6 +442,9 @@ msrc() {
 				else
 					sloadtime="$EPOCHSECONDS"
 				fi
+
+				# Set variable MSRC_FILE_CONFIG for convenient access
+				MSRC_FILE_CONFIG="${MSRC_FILE/%.bashrc/.config}"
 
 				# Source if executable
 				source "$MSRC_FILE"
