@@ -32,6 +32,16 @@ body:
     validations:
       required: true
   - type: textarea
+    id: shopts
+    attributes:
+      label: Shell Options
+      description: |
+        Enter a list of your shell options
+      placeholder: |
+        autocd
+        checkwinsize
+        etc...
+  - type: textarea
     id: what-happened
     attributes:
       label: What went wrong?
