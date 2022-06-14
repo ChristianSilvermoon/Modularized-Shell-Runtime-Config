@@ -333,7 +333,7 @@ cd() {
 }
 
 # Set/Read bookmarks file 
-[ "$CD_BKM_FILE" ] || CD_BKM_FILE="$HOME/.super-cd-bookmarks"
+[ "$CD_BKM_FILE" ] || CD_BKM_FILE="$MSRC_FILE_CONFIG"
 [ -r "$CD_BKM_FILE" ] && cd -R 2>/dev/null
 
 # Initialize some good default bookmarks if non are present
