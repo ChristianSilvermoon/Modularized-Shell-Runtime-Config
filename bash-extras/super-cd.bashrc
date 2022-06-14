@@ -284,6 +284,7 @@ cd() {
 			local dir
 			local yorn
 			local nargproc
+			local x
 
 			for x; do
 				[ "$x" = "--" ] && nargproc=1
