@@ -497,7 +497,7 @@ msrc() {
 
 			elif [ "$PREFIX" = "/data/data/com.termux/files/usr" ]; then
 				# Special handling for Termux
-				OSR[name]="Termux $TERMUX_VERSION ($TERMUX_APK_RELEASE)"
+				params[platform]="Termux $TERMUX_VERSION ($TERMUX_APK_RELEASE)"
 			fi
 
 			params[shopts]="${BASHOPTS//:/$'\n'}"
