@@ -6,7 +6,7 @@ Installation is pretty darn easy, just follow the steps outlined here.
 
 1. You should start by making a backup of your Shell Config File (`~/.bashrc`, `~/.zshrc`, etc)! You may not want to lose your existing customizations and/or customizations shipped by your OS!
 2. Replace your original Config with the appropriate one from this repository (`msrc.bashrc`, `msrc.zsh`, etc), or append the contents to it instead (feel free to modify as you see fit)
-3. Start a new instance of your shell; which will create the default directory for your new files
+3. Start a new instance of your shell, which will create the default directory for your new files
 4. *Optionally* Copy your original Shell Config in as a module to have your original config file loaded through the system. Example: `.bashrc` -> `~/bashrc.d/00_my-original.bashrc` and mark it as **executable**, 
 5. *Optionally* remove the **write** permission from your new shell config file to prevent other programs and scripts from tampering with it behind your back.
 
@@ -73,9 +73,9 @@ The **prefered solution** is to reference `$MSRC_CONFIG_FILE` for storing/loadin
 
 This solution means that `$BASH_MSRC_DIR/00_my-super-awesome-thing.bashrc` should use `$BASH_MSRC_DIR/00_my-super-awesome-thing.config` as it's config file.
 
-If this solution is not optimal; you can also follow the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
+If this solution is not optimal you can instead follow the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
 
-You're free to realistically store things wherever you like, it is *your* computer, after all; but these are the recommended guidelines.
+You're free to realistically store things wherever you like, it is *your* computer, after all, but these are the recommended guidelines.
 
 ### Calling Overidden Built-ins, Commands, and Aliased Commands
 Though not necessarily required or needed, some Config files may **override** shell built-ins, such as `cd`
