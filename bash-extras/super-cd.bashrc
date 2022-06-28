@@ -316,6 +316,7 @@ cd() {
 				echo -n "Do you want to create it? [Y/N*] "
 				read -rsn1 yorn
 				tput rc
+				tput el
 
 				if [ "${yorn,,}" = "y" ]; then
 					mkdir -p "$dir" || return "$?"
