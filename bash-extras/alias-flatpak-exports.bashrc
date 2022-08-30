@@ -5,11 +5,11 @@ local item
 for item in "/var/lib/flatpak/exports/bin"/* "${XDG_DATA_HOME:-$HOME/.local/share}/flatpak/exports/bin"/*; do
 	[ -x "$item" ] || continue
 
-	local flatpak_short_alias="$(echo "$item" | tr '.' '\n' | tail -1 | tr '[:upper:]' '[:lower:]')"
-	local flatpak_long_alias="$(basename "$item")"
+	local flatpak_short_alias="${item//*.}"
+	local flatpak_long_alias="${item//*\/}"
 	
 	if [ ! "$(command -v "$alias_name")" ]; then
-		alias "$flatpak_short_alias"="$item"
+		alias "${flatpak_short_alias,,}"="$item"
 	elif [ ! "$(command -v "$flatpak_long_alias")" ]; then
 		alias "$flatpak_long_alias"="$item"
 	fi
