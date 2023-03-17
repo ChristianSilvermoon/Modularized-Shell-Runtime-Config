@@ -567,8 +567,25 @@ msrc() {
 			fi
 
 			params[shopts]="${BASHOPTS//:/$'\n'}"
-			params[shell]="${BASH/#*\//} $BASH_VERSION"
+			params[shell]="${BASH/#*\//} - $BASH_VERSION"
 			params[system]="$(uname -spr)"
+
+			# Attempt to Indetify C Library
+			case "${BASH_VERSINFO[5]}" in
+				*-gnu)
+					params[libc]="GNU Libc"
+					;;
+				*-androideabi)
+					params[libc]="Bionic Libc"
+					;;
+				*-musl)
+					params[libc]="Musl Libc"
+					;;
+				*)
+					params[libc]="Unknown Libc"
+					;;
+			esac
+			params[libc]+=" (${BASH_VERSINFO[5]})"
 
 			# Special Thanks For URL Encoding
 			#  * https://askubuntu.com/questions/53770/how-can-i-encode-and-decode-percent-encoded-strings-on-the-command-line#answer-295312
@@ -589,7 +606,14 @@ msrc() {
 
 			done
 
-			echo -e "\e[1mYou can report your issue here:\e[22m"
+			echo -e "\e[1mSystem Info\e[22m"
+			printf "  \e[1m%-20s :\e[22m %s\n" "Platform" "${params[platform]}"
+			printf "  \e[1m%-20s :\e[22m %s\n" "Shell" "${params[shell]}"
+			printf "  \e[1m%-20s :\e[22m %s\n" "C Library" "${params[libc]}"
+			printf "  \e[1m%-20s :\e[22m %s\n" "System Architecture" "${params[system]}"
+			printf "  \e[1m%-20s :\e[22m %s\n" "Shell Options" "${BASHOPTS//:/ }"
+
+			echo -e "\n\e[1mYou can report your issue here:\e[22m"
 			echo "$url"
 			echo -e "\n\e[2;3mNote: This link will autofill fields of the Issue Report with your System Info\e[22;23m\n"
 
