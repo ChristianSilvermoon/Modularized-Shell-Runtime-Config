@@ -31,6 +31,16 @@ body:
       placeholder: Linux Mint 20.3 (Una), Arch Linux, Android 9 + Termux 0.118.0 (F_DROID), etc
     validations:
       required: true
+  - type: input
+    id: libc
+    attributes:
+      label: C Library
+      description: |
+        What C Library is your Shell Using?
+        Different C Libraries can alter BASH's behavior!
+      placeholder: "GNU Libc, Musl Libc, etc. Try: echo ${BASH_VERSINFO[5]}"
+    validations:
+      required: true
   - type: textarea
     id: shopts
     attributes:
