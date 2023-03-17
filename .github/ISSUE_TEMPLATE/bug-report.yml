@@ -7,6 +7,7 @@ body:
     attributes:
       value: |
         Thank you for taking the time to report your Issue!
+        *Tip: you can use `msrc -i` to generate an issue report link that autofills your System Info for you!*
   - type: input
     id: shell
     attributes:
