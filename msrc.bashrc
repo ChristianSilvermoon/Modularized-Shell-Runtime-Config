@@ -1,15 +1,15 @@
 #!/bin/bash
 # =========================================
 # Modularized Shell Runtime Configuration
-# GitHub: https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config 
+# GitHub: https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config
 # =================================================================================
 # This is free and unencumbered software released into the public domain.
-# 
+#
 # Anyone is free to copy, modify, publish, use, compile, sell, or
 # distribute this software, either in source code form or as a compiled
 # binary, for any purpose, commercial or non-commercial, and by any
 # means.
-# 
+#
 # In jurisdictions that recognize copyright laws, the author or authors
 # of this software dedicate any and all copyright interest in the
 # software to the public domain. We make this dedication for the benefit
@@ -17,7 +17,7 @@
 # successors. We intend this dedication to be an overt act of
 # relinquishment in perpetuity of all present and future rights to this
 # software under copyright law.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -25,8 +25,8 @@
 # OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
-# 
-# For more information, please refer to <https://unlicense.org> 
+#
+# For more information, please refer to <https://unlicense.org>
 # =========================================
 
 # Load System BASH Completions: Standard
@@ -37,7 +37,7 @@
 
 # MSRC Directory Setup
 BASH_MSRC_DIR="${BASH_MSRC_DIR:="$HOME/.bashrc.d"}"
-[ -d "$BASH_MSRC_DIR" ] || mkdir -p "$BASH_MSRC_DIR" 
+[ -d "$BASH_MSRC_DIR" ] || mkdir -p "$BASH_MSRC_DIR"
 
 # BASH Completion
 _msrc() {
@@ -56,7 +56,7 @@ _msrc() {
 
 		-c|-m|-e|-r|check|edit|mv|rm|remove|rename)
 			local scripts=""
-			
+
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
 				scripts+="$(basename "${f/%.bashrc/}") "
 			done
@@ -69,7 +69,7 @@ _msrc() {
 			;;
 		-x|disable)
 			local scripts=""
-			
+
 			for f in "$BASH_MSRC_DIR"/*.bashrc; do
 				[ -x "$f" ] && scripts+="$(basename "${f%.bashrc}") "
 			done
@@ -99,7 +99,7 @@ _msrc() {
 			return
 			;;
 		*)
-			:	
+			:
 			return
 			;;
 	esac
@@ -110,7 +110,7 @@ _msrc() {
 msrc() {
 	local -r MSRC_SRC="https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config"
 	local -r MSRC_ISSUE_URL="https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config/issues"
-	
+
 	case "$1" in
 		"new"|"-n")
 			if [ "$(echo "$2" | grep ".bashrc$")" ]; then
@@ -184,20 +184,20 @@ msrc() {
 					echo ""
 					[ "${yorn,,}" = "y" ]|| return
 				fi
-				
+
 				# Move both the `.bashrc` and `.config` if it exists
 				mv -v "$BASH_MSRC_DIR/$2.bashrc" "$BASH_MSRC_DIR/$3.bashrc"
 				[ -f "$BASH_MSRC_DIR/$2.config" ] && mv -v "$BASH_MSRC_DIR/$2.config" "$BASH_MSRC_DIR/$3.config"
 				return 0
 			fi
-			
+
 			;;
 		"edit"|"-e")
 
 			if [ ! "$EDITOR" ]||[ ! "$(command -v "$EDITOR")" ]; then
 				echo "Ensure \"\$EDITOR\" is set to a valid command." 1>&2
 				return 1
-			
+
 			elif [ ! "$2" ]; then
 				echo -e "\e[1mSelect a config file to edit:\e[22m"
 				local editable_files=()
@@ -222,7 +222,7 @@ msrc() {
 			elif [ "$(echo "$2" | grep ".bashrc$")" ]; then
 				echo "The extension \".bashrc\" is automatically appended, please don't include it." 1>&2
 				return 1
-			
+
 			elif [ "$(echo "$2" | grep "/")" ]; then
 				echo "You cannot use \"/\" in file names." 1>&2
 				return 1
@@ -251,7 +251,7 @@ msrc() {
 					return 1
 				else
 					shellcheck -a --color=always --shell=bash "$BASH_MSRC_DIR/$2.bashrc"
-					return $?	
+					return $?
 				fi
 				;;
 		"enable"|"+x")
@@ -270,7 +270,7 @@ msrc() {
 			fi
 			return 0
 			;;
-			
+
 		"disable"|"-x")
 			if [ -e "$BASH_MSRC_DIR/$2.bashrc" ]; then
 				if [ -x "$BASH_MSRC_DIR/$2.bashrc" ]; then
@@ -288,14 +288,17 @@ msrc() {
 			return 0
 			;;
 		"list"|"ls"|"-l"|"-L")
-			local x
+			local x y
 			local pBuffer=""
 			local longestName=0
-			
+			local name
+			local desc
+			local descs=()
+			local names=()
+
 			if [ ! "$2" = "--fancy" ]&&[ "$1" != "-L" ]; then
 				# Simpler List Format for lower end systems
-				local name
-				local desc
+				local dm
 				local maxDescLength=9999
 				local names=()
 				local descs=()
@@ -307,8 +310,20 @@ msrc() {
 						name=$(echo -en "\e[31;1m")
 					fi
 
-					name+=$(basename "${x/%.bashrc/}")
-					desc=$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)
+					y=${x/*\/}
+					y=${y/%.bashrc}
+					name+=$y
+					mapfile -t dm < "$x"
+					for desc in "${dm[@]}"; do
+						[[ "$desc" =~ ^# ]] || continue
+						if [[ "$desc" =~ ^#[[:blank:]]*(D|d)escription:[[:blank:]]* ]]; then
+							desc=${desc#${BASH_REMATCH[0]}}
+							break
+						else
+							desc=""
+						fi
+					done
+
 					[ "$longestName" -lt "${#name}" ] && longestName=${#name}
 					names+=( "$name" )
 
@@ -333,32 +348,36 @@ msrc() {
 				return 0
 			fi
 
-			local x
 			local file=()
-			local name=()
-			local desc=()
 			local tdesc=""
 			local tname=""
-			local nameLength=0
-			local descLength=0
 			local status=()
 			local longestDesc=0
 			local maxWidth="$COLUMNS"
 			local truncPoint=""
 			local tableWidth=""
-			local tableBar=""
+			local tableTop=""
+			local tableMid=""
+			local tableBot=""
 
 			# Get data on all files
 			for x in $BASH_MSRC_DIR/*.bashrc; do
-				tname=( "$(command basename "${x/%.bashrc/}")" )
-				tdesc="$(command cat "$x" | grep "^#" | grep -E "(D|d)escription:" | cut -d ':' -f 2- | sed -E 's/^( |  )//g' | head -1)"
+				tname=${x/*\/}
+				tname=${tname/%.bashrc}
 
-				nameLength=$(( $(echo "$tname" | wc -c) - 1))
-				descLength=$(( $(echo "$tdesc" | wc -c) - 1))
+				mapfile -t dm < "$x"
+				for tdesc in "${dm[@]}"; do
+					[[ "$tdesc" =~ ^# ]] || continue
+					if [[ "$tdesc" =~ ^#[[:blank:]]*(D|d)escription:[[:blank:]]* ]]; then
+						tdesc="${tdesc#${BASH_REMATCH[0]}}"
+						break
+					else
+						tdesc=""
+					fi
+				done
 
-
-				[ "$longestName" -lt "$nameLength" ] && longestName="$nameLength"
-				[ "$longestDesc" -lt "$descLength" ] && longestDesc="$descLength"
+				[ "$longestName" -lt "${#tname}" ] && longestName="${#tname}"
+				[ "$longestDesc" -lt "${#tdesc}" ] && longestDesc="${#tdesc}"
 
 				name+=( "$tname" )
 				desc+=( "$tdesc" )
@@ -378,17 +397,26 @@ msrc() {
 			tableWidth="$((longestName + 5 + longestDesc))"
 			[ "$tableWidth" -gt "$((maxWidth -2 ))" ] && tableWidth=$((maxWidth - 2))
 
-			# Generate Table Bar
-			tableBar+="╔"
-			tableBar+="$(printf '%*s' $((longestName + 2)) | sed 's/ /═/g')"
-			tableBar+="╦"
-			tableBar+="$(printf '%*s' $(( tableWidth - longestName - 3 )) | sed 's/ /═/g')"
-			tableBar+="╗"
+			# Generate Table Parts
+			tableTop+="╔"
+			tableTop+="$(printf '%*s' $((longestName + 2)))"
+			tableTop+="╦"
+			tableTop+="$(printf '%*s' $(( tableWidth - longestName - 3 )))"
+			tableTop+="╗"
+			tableTop=${tableTop// /═}
+
+			tableMid=${tableTop//╔/╠}
+			tableMid=${tableMid//╦/╬}
+			tableMid=${tableMid//╗/╣}
+
+			tableBot=${tableTop//╔/╚}
+			tableBot=${tableBot//╦/╩}
+			tableBot=${tableBot//╗/╝}
 
 			# Draw Table
-			pBuffer+=$(echo -e "\e[37;1m$tableBar")$'\n'
+			pBuffer+=$(echo -e "\e[37;1m$tableTop")$'\n'
 			pBuffer+=$(printf "║ %-${longestName}s ║ %-$((tableWidth - longestName - 5))s ║\n" "Name" "Description")$'\n'
-			pBuffer+=$(echo "$tableBar" | sed 's/╔/╠/g; s/╦/╬/g; s/╗/╣/g')$'\n'
+			pBuffer+=${tableMid}$'\n'
 
 			# List Config Files and Descriptions
 			for ((x=0; x < ${#name[@]}; x++)); do
@@ -396,7 +424,7 @@ msrc() {
 
 				pBuffer+=$(printf "%-${longestName}s" "${name[x]}")
 				pBuffer+=$(echo -ne "\e[37;1m ║ ${status[x]}")
-				
+
 				tdesc="${desc[x]:0:$truncPoint}"
 				if [ "$tdesc" ]; then
 					[ "${#desc[x]}" -ge "$truncPoint" ] && tdesc+="..."
@@ -404,26 +432,26 @@ msrc() {
 				else
 					pBuffer+=$(printf "%-$((tableWidth - longestName + 9))s" "$(echo -ne "\e[2;3mNo Description\e[22;23m")")
 				fi
-				
+
 				pBuffer+=$(echo -en " \e[37;1m║")$'\n'
 			done
 
-			pBuffer+=$(echo -e "\e[37;1m$tableBar\e[22m" | sed 's/╔/╚/g; s/╦/╩/g; s/╗/╝/g')
+			pBuffer+=${tableBot}
 			echo "$pBuffer"
-
-			# End Table			
+			echo -en "\e[0m"
+			# End Table
 
 			return 0
 			;;
 		"source"|"-s")
 			# Source executable .bashrc files in $XDG_CONFIG_HOME/
-			
+
 			MSRC_LOAD_TIMES=""
 			MSRC_LOAD_TIME_TOTAL=""
-			
+
 			local sloadtime
 			local eloadtime
-			
+
 			if [ "$(command -v bc)" ]; then
 				local tstime="$EPOCHREALTIME"
 			else
@@ -435,7 +463,7 @@ msrc() {
 			for MSRC_FILE in $BASH_MSRC_DIR/*.bashrc; do
 				# Skip Iteration if not executable
 				[ ! -x "$MSRC_FILE" ] && continue
-				
+
 				# Store time before execution
 				if [ "$(command -v bc)" ]; then
 					sloadtime="$EPOCHREALTIME"
@@ -448,7 +476,7 @@ msrc() {
 
 				# Source if executable
 				source "$MSRC_FILE"
-		
+
 				# Store time After Execution
 				if [ "$(command -v bc)" ]; then
 					eloadtime="$EPOCHREALTIME"
@@ -459,7 +487,7 @@ msrc() {
 				MSRC_LOAD_TIMES+="${sloadtime} ${eloadtime} ${MSRC_FILE}"$'\n'
 			done
 
-			# Store total load time	
+			# Store total load time
 			if [ "$(command -v bc)" ]; then
 				MSRC_LOAD_TIME_TOTAL="$(echo "$EPOCHREALTIME - $tstime" | bc)"
 			else
@@ -484,26 +512,28 @@ msrc() {
 			;;
 		"-t"|"times")
 			echo -e "Total: ${MSRC_LOAD_TIME_TOTAL}s\n\n" 1>&2
-		
+
 			local OIFS=$IFS
 			local IFS=$'\n'
 			local list
 
 			for f in $MSRC_LOAD_TIMES; do
-				local stime="$(echo "$f" | cut -d ' ' -f 1)"
+				local stime=${f/ *}
 				local etime="$(echo "$f" | cut -d ' ' -f 2)"
+				local etime=${f#* }; etime=${etime%% *}
 				local file="$(echo "$f" | cut -d ' ' -f 3-)"
 
 				if [ "$(command -v bc)" ]; then
 					list+="$(echo "$etime - $stime" | bc)s $file"$'\n'
 				else
 					list+="$((etime - stime))s $file"$'\n'
-				fi 
+				fi
 			done
 			echo "$list" | sort -r
 			;;
 		"-o"|"order")
 			echo "$MSRC_LOAD_TIMES" | cut -d ' ' -f 3-
+			# Attempts at replacing cut in this case with internals-only are usually 1ms slower.
 			;;
 		"issue"|"-i")
 			local OSRF
@@ -514,7 +544,7 @@ msrc() {
 			local v
 			local -A params
 
-			# Get Distro Info	
+			# Get Distro Info
 			if [ -f /etc/os-release ]; then
 				mapfile -t OSRF </etc/os-release
 				for x in "${OSRF[@]}"; do
@@ -540,7 +570,6 @@ msrc() {
 			params[shell]="${BASH/#*\//} $BASH_VERSION"
 			params[system]="$(uname -spr)"
 
-
 			# Special Thanks For URL Encoding
 			#  * https://askubuntu.com/questions/53770/how-can-i-encode-and-decode-percent-encoded-strings-on-the-command-line#answer-295312
 			#  * https://askubuntu.com/users/78223/kenorb
@@ -559,7 +588,7 @@ msrc() {
 				url+="&$x=$k"
 
 			done
-			
+
 			echo -e "\e[1mYou can report your issue here:\e[22m"
 			echo "$url"
 			echo -e "\n\e[2;3mNote: This link will autofill fields of the Issue Report with your System Info\e[22;23m\n"
@@ -583,7 +612,7 @@ msrc() {
 			echo -e "\n\e[1mUSAGE:\e[0m\nmsrc <options>\n"
 
 			echo -e "\e[1mARGUMENTS:\e[0m"
-			
+
 			# Display Shellcheck, width details
 			printf "  %-28s %s\n" "-c, check" "Check a config file with shellcheck"
 			if [ ! "$(command -v shellcheck)" ]; then
@@ -610,7 +639,6 @@ msrc() {
 			fi
 			echo -ne "\e[22;23;37m"
 
-
 			printf "  %-28s %s\n" "-i, issue" "Submit An Issue Report on GitHub"
 			printf "  %-28s %s\n" "-l, ls, list [--fancy]" "List config files, optionally with pretty border."
 			printf "  %-28s %s\n" "-L" "Equivalent to 'msrc ls --fancy' (pretty border)."
@@ -628,13 +656,11 @@ msrc() {
 				echo -en "\e[22;23;37m"
 			fi
 
-
 			printf "  %-28s %s\n" "-o, order" "Print Order each file was sourced"
 			printf "  %-28s %s\n" "+x, enable <file>" "Set a config file as executable"
 			printf "  %-28s %s\n" "-x, disable <file>" "Set a config file as non-executable"
 
-		        printf "  %-28s %s\n" "-?, --help" "Display this message"
-			
+	        printf "  %-28s %s\n" "-?, --help" "Display this message"
 
 			echo -e "\n\e[1mConfig Path:\e[0m\n$BASH_MSRC_DIR"
 			echo -e "\e[2;3mNote: You can change this path by setting the value of \$BASH_MSRC_DIR\e[22;23m"
