@@ -84,11 +84,12 @@ body:
       label: What SHOULD have happened?
       description: What do you believe should have happened?
   - type: checkboxes
-    id: verifiedmd5
+    id: md5prompt
     attributes:
       label: My copy of MSRC is unmodified
       options:
         - label: "I've verified that the md5 matches via `msrc md5check`"
+          id: verifiedmd5
           required: true
   - type: checkboxes
     id:  boxes
