@@ -9,6 +9,14 @@ body:
         Thank you for taking the time to report your Issue!
         *Tip: you can use `msrc -i` to generate an issue report link that autofills your System Info for you!*
   - type: input
+    id: msrcver
+    attributes:
+      label: MSRC Version
+      description: What MSRC Version Are You Running?
+      placeholder: 24.12.28
+    validations:
+      required: true
+  - type: input
     id: shell
     attributes:
       label: Shell Name & Version
@@ -67,6 +75,13 @@ body:
     attributes:
       label: What SHOULD have happened?
       description: What do you believe should have happened?
+  - type: checkboxes
+    id: verifiedmd5
+    attributes:
+      label: My copy of MSRC is unmodified
+      options:
+        - label: "I've verified that the md5 matches via `msrc md5check`"
+          required: true
   - type: checkboxes
     id:  boxes
     attributes:
