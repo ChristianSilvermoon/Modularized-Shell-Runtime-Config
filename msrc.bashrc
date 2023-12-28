@@ -28,6 +28,9 @@
 #
 # For more information, please refer to <https://unlicense.org>
 # =========================================
+declare -gr BASH_MSRC_VERSION="23.12.28"
+declare -gr BASH_MSRC_CORE="$BASH_SOURCE"
+declare -gr BASH_MSRC_MD5=3a25377df47b6a21717b25bc1886b215
 
 # Load System BASH Completions: Standard
 [ -r "/etc/bash_completion" ] && source "/etc/bash_completion"
@@ -47,7 +50,7 @@ _msrc() {
 
 	if [ "$cword" = "1" ]; then
 		COMPREPLY=($(
-			compgen -W '-? -i -l -L -s -t -o -x -n -r -m -c -e +x -C -S --help cd issue restart ls list source times order enable disable new rm remove mv rename check edit' -- "$cur"
+			compgen -W '-? -i -l -L -s -t -o -x -n -r -m -c -e +x -v -E -C -S -5 --help cd issue restart ls list source times order enable disable new rm remove mv rename check edit version editcore md5check' -- "$cur"
 		))
 		return
 	fi
@@ -98,6 +101,19 @@ _msrc() {
 			))
 			return
 			;;
+		md5check|-5)
+			COMPREPLY=($(
+				compgen -W "--only" -- "$cur"
+			))
+			return
+
+			;;
+		editcore|-E)
+			COMPREPLY=($(
+				compgen -W "--unsafe" -- "$cur"
+			))
+			return
+			;;
 		*)
 			:
 			return
@@ -112,6 +128,56 @@ msrc() {
 	local -r MSRC_ISSUE_URL="https://github.com/ChristianSilvermoon/Modularized-Shell-Runtime-Config/issues"
 
 	case "$1" in
+		"md5check"|"-5")
+			local match
+			local BASH_MSRC_CMD5=$(
+				shopt -s extglob
+				mapfile -t bashrc < $BASH_MSRC_CORE
+				for line in "${bashrc[@]}"; do
+					line=${line/#+($'\t'| )} # Let's not count indentation, let users use whatever indentation they like :)
+
+					# Ignore everything after the MSRC config loads
+					[ "$line" = "} && readonly -f msrc && msrc -s # Prevent changes at runtime & load initial config" ] && break
+
+					[[ $line =~ ^declare\ \-gr\ BASH_MSRC_MD5= ]] && continue # The intended MD5 cannot be factored into the MD5 check
+					[[ $line =~ ^$ ]] && continue # We can ignore empty lines :)
+					[[ $line =~ ^# ]] && continue # We can ignore comment lines :)
+					finalrc+=( "$line" )
+				done
+
+				# Calculate & return md5sum of relevant BASHRC sections
+				s=$(printf "%s\n" "${finalrc[@]}" | md5sum )
+				printf "${s// *}"
+			)
+
+			[ "$BASH_MSRC_MD5" = "$BASH_MSRC_CMD5" ]
+			match="$?"
+
+			[ "$2" = "--only" ] && echo "$BASH_MSRC_CMD5" && return "$match"
+
+			echo "MD5 Sum Check for: $BASH_MSRC_CORE"
+			printf "  %-10s : %s\n" \
+				"Correct" "$BASH_MSRC_MD5" \
+				"Yours"   "${BASH_MSRC_CMD5}"
+
+			if [ "$match" != "0" ]; then
+				echo -e "\nRelevant portions of your primary BASHRC have been modified!"
+				echo
+				echo "To preserve the correct MD5, observe the following"
+				printf "  %-10s : %s\n" \
+					"Do Not"  "Alter end-line comments" \
+					"Do Not"  "Alter any of the script's lines" \
+					"Do Not"  "Alter the value of the \$BASH_MSRC_MD5" \
+					"Do Not"  "Add anything before the MSRC Section" \
+					"You May" "Add or Remove empty lines." \
+					"You May" "Add or Remove Full Line Coments." \
+					"You May" "Add or indentation in the form of SPACES or TABS" \
+					"You May" "Add or remove things below the MSRC Section"
+			fi
+
+			return "$match"
+
+			;;
 		"new"|"-n")
 			if [ "$(echo "$2" | grep ".bashrc$")" ]; then
 				echo "The extension \".bashrc\" is automatically appended, please don't include it." 1>&2
@@ -191,6 +257,63 @@ msrc() {
 				return 0
 			fi
 
+			;;
+		"editcore"|"-E")
+			local content line file core noncore section=0 nsum pesum
+			local endcomment="# Modularized Shell Runtime Config -- end"
+			if [ ! "$EDITOR" ]||[ ! "$(command -v "$EDITOR")" ]; then
+				echo "Ensure \"\$EDITOR\" is set to a valid command." 1>&2
+				return 1
+			fi
+
+			if [ "$2" =  "--unsafe" ]; then
+				echo "Directly editing: $BASH_MSRC_CORE"
+				$EDITOR "$BASH_MSRC_CORE"
+				if ! msrc -5 --only >/dev/null 2>&1; then
+					echo "WARNING: MD5 Integrity Check was invalid!" 1>&2
+					return 1
+				fi
+				return 0
+			else
+				echo "Protecting MSRC while editing: $BASH_MSRC_CORE"
+				mapfile -t file < "$BASH_MSRC_CORE"
+
+				for line in "${file[@]}"; do
+
+					if [ "$section" = "0" ]; then
+						# Seperate MSRC Core Section
+						core+=( "$line" )
+						[ "$line" = '} && readonly -f msrc && msrc -s # Prevent changes at runtime & load initial config' ] && section=1
+						[ "$section" = "1" ] && core+=( "$endcomment" )
+						continue
+					else
+						# Seperate After MSRC Section
+						[ "$line" != "$endcomment" ] && noncore+=( "$line" ) # Don't include the seperator comment
+						continue
+					fi
+				done
+
+				printf "%s\n" "${noncore[@]}" > "${BASH_MSRC_CORE}.new"
+				nsum=$(md5sum "$BASH_MSRC_CORE.new" ) # MD5 of New
+				$EDITOR "${BASH_MSRC_CORE}.new"
+				pesum=$(md5sum "${BASH_MSRC_CORE}.new" ) # MD5 after edit
+
+				if [ "${nsum// *}" = "${pesum// *}" ]; then
+					echo "No change, aborting."
+					rm "${BASH_MSRC_CORE}.new"
+					return
+				else
+					mv "$BASH_MSRC_CORE"{,.old} # Backup Old
+
+					mapfile -t noncore < "${BASH_MSRC_CORE}.new"
+					printf "%s\n" "${core[@]}" "${noncore[@]}" > "$BASH_MSRC_CORE"
+					rm "${BASH_MSRC_CORE}.new"
+
+					echo "Updated: $BASH_MSRC_CORE"
+					echo "Restart BASH for changes to take effect."
+				fi
+
+			fi
 			;;
 		"edit"|"-e")
 
@@ -535,6 +658,9 @@ msrc() {
 			echo "$MSRC_LOAD_TIMES" | cut -d ' ' -f 3-
 			# Attempts at replacing cut in this case with internals-only are usually 1ms slower.
 			;;
+		"-v"|"version")
+			echo "v$BASH_MSRC_VERSION $BASH_MSRC_MD5"
+			;;
 		"issue"|"-i")
 			local OSRF
 			local url="${MSRC_ISSUE_URL}/new?template=bug-report.yml&labels=bug%2Cneeds+review&template=bug-report.yml&title=[Bug]%3A+"
@@ -586,6 +712,8 @@ msrc() {
 					;;
 			esac
 			params[libc]+=" (${BASH_VERSINFO[5]})"
+			params[msrcver]="$BASH_MSRC_VERSION"
+			params[md5]="$(msrc -5 --only)"
 
 			# Special Thanks For URL Encoding
 			#  * https://askubuntu.com/questions/53770/how-can-i-encode-and-decode-percent-encoded-strings-on-the-command-line#answer-295312
@@ -607,11 +735,15 @@ msrc() {
 			done
 
 			echo -e "\e[1mSystem Info\e[22m"
-			printf "  \e[1m%-20s :\e[22m %s\n" "Platform" "${params[platform]}"
-			printf "  \e[1m%-20s :\e[22m %s\n" "Shell" "${params[shell]}"
-			printf "  \e[1m%-20s :\e[22m %s\n" "C Library" "${params[libc]}"
-			printf "  \e[1m%-20s :\e[22m %s\n" "System Architecture" "${params[system]}"
-			printf "  \e[1m%-20s :\e[22m %s\n" "Shell Options" "${BASHOPTS//:/ }"
+			printf "  \e[1m%-20s :\e[22m %s\n" \
+				"MSRC Verison" "${params[msrcver]}" \
+				"Correct MSRC MD5" "$BASH_MSRC_MD5" \
+				"YOUR MSRC MD5" "${params[md5]}" \
+				"Platform" "${params[platform]}" \
+				"Shell" "${params[shell]}" \
+				"C Library" "${params[libc]}" \
+				"System Architecture" "${params[system]}" \
+				"Shell Options" "${BASHOPTS//:/ }"
 
 			echo -e "\n\e[1mYou can report your issue here:\e[22m"
 			echo "$url"
@@ -647,32 +779,50 @@ msrc() {
 			fi
 			printf "  %-28s %s\n" "-C, cd" "cd to Config Path"
 
-			# Edit Argument, with details
-			printf "  %-28s %s" "-e, edit" "Edit an existing config file using "
+			# edit argument, with details
+			printf "  %-28s %s" "-e, edit" "edit an existing config file using "
 			if [ "$EDITOR" ]; then
-				# Warn if valid editor or not
+				# warn if valid EDITOR or not
 				[ "$(command -v $EDITOR)" ] && echo -ne "\e[32m" || echo -ne "\e[31m"
 				echo -e "$EDITOR\e[31;2;3m"
-				[ ! "$(command -v $EDITOR)" ] && printf "  %-28s %s\n" "" "Note: \"$EDITOR\" isn't a valid command!"
+				[ ! "$(command -v $EDITOR)" ] && printf "  %-30s %s\n\n" "" "note: \"$EDITOR\" isn't a valid command!"
 
 			else
-				# Warn that $EDITOR isn't set
+				# warn that $EDITOR isn't set
 				echo -e "\e[35m\$EDITOR\e[31;2;3m"
-				printf "  %-28s %s\n" "" "Note: Your \$EDITOR isn't set."
+				printf "  %-30s %s\n\n" "" "note: your \$EDITOR isn't set."
 
 			fi
-			echo -ne "\e[22;23;37m"
+			echo -en "\e[22;23;37m"
 
-			printf "  %-28s %s\n" "-i, issue" "Submit An Issue Report on GitHub"
-			printf "  %-28s %s\n" "-l, ls, list [--fancy]" "List config files, optionally with pretty border."
-			printf "  %-28s %s\n" "-L" "Equivalent to 'msrc ls --fancy' (pretty border)."
-			printf "  %-28s %s\n" "-m, mv, rename <old> <new>" "Rename a config file"
-			printf "  %-28s %s\n" "-n, new <file>" "Create and edit new non-executable config file"
-			printf "  %-28s %s\n" "-r, rm, remove <file>" "Delete a config file"
-			printf "  %-28s %s\n" "-s, source" "Source Executable config files from Config Path"
-			printf "  %-28s %s\n" "-S, restart" "Restart Shell, potentially losing work"
+			# editcore argument, with details
+			printf "  %-28s %s" "-E, editcore [--unsafe]" "Safely edit main BASHRC file using "
+			if [ "$EDITOR" ]; then
+				# warn if valid EDITOR or not
+				[ "$(command -v $EDITOR)" ] && echo -ne "\e[32m" || echo -ne "\e[31m"
+				echo -e "$EDITOR\e[31;2;3m"
+				[ ! "$(command -v $EDITOR)" ] && printf "  %-30s %s\n\n" "" "note: \"$EDITOR\" isn't a valid command!"
 
-			printf "  %-28s %s\n" "-t, times" "Print (Rough) Time It Took Sourcing Files"
+			else
+				# warn that $EDITOR isn't set
+				echo -e "\e[35m\$EDITOR\e[31;2;3m"
+				printf "  %-30s %s\n\n" "" "note: your \$EDITOR isn't set."
+
+			fi
+			echo -en "\e[22;23;37m"
+
+			printf "  %-28s %s\n" \
+				"-i, issue"                   "Submit An Issue Report on GitHub" \
+				"-l, ls, list [--fancy]"      "List config files, optionally with pretty border." \
+				"-L"                          "Equivalent to 'msrc ls --fancy' (pretty border)." \
+				"-m, mv, rename <old> <new>"  "Rename a config file" \
+				"-n, new <file>"              "Create and edit new non-executable config file" \
+				"-r, rm, remove <file>"       "Delete a config file" \
+				"-s, source"                  "Source Executable config files from Config Path" \
+				"-S, restart"                 "Restart Shell, potentially losing work" \
+				"-t, times"                   "Print (Rough) Time It Took Sourcing Files" \
+				"-v, version"                 "Print Version Information"
+
 			if [ ! "$(command -v bc)" ]; then
 				# Warn if bc is missing
 				echo -en "\e[31;2;3m"
@@ -680,11 +830,12 @@ msrc() {
 				echo -en "\e[22;23;37m"
 			fi
 
-			printf "  %-28s %s\n" "-o, order" "Print Order each file was sourced"
-			printf "  %-28s %s\n" "+x, enable <file>" "Set a config file as executable"
-			printf "  %-28s %s\n" "-x, disable <file>" "Set a config file as non-executable"
-
-	        printf "  %-28s %s\n" "-?, --help" "Display this message"
+			printf "  %-28s %s\n" \
+				"-o, order"             "Print Order each file was sourced" \
+				"+x, enable <file>"     "Set a config file as executable" \
+				"-x, disable <file>"    "Set a config file as non-executable" \
+				"-5, md5check [--only]" "Check MSRC Integrity: $BASH_MSRC_CORE" \
+				"-?, --help"            "Display this message"
 
 			echo -e "\n\e[1mConfig Path:\e[0m\n$BASH_MSRC_DIR"
 			echo -e "\e[2;3mNote: You can change this path by setting the value of \$BASH_MSRC_DIR\e[22;23m"
@@ -697,5 +848,5 @@ msrc() {
 			;;
 	esac
 
-} && readonly -f msrc # Prevent changes at runtime
-msrc -s
+} && readonly -f msrc && msrc -s # Prevent changes at runtime & load initial config
+# Modularized Shell Runtime Config -- end
