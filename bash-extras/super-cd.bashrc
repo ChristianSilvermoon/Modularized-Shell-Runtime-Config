@@ -6,7 +6,8 @@
 
 # Modify CD behavior
 cd() {
-	if [ "${1:0:1}" = "%" ] && [ ! -e "$1" ]; then
+	if [ "${1:0:1}" = "%" ] && [[ ! ${1:1} =~ % ]] && [ ! -e "$1" ]; then
+		# Bookmark handling if %NAME, and no other %, which is for WINE variables
 		cd -f "${1:1}"
 		return "$?"
 	fi
@@ -56,6 +57,7 @@ cd() {
 
 			elif [ "${CD_BKM[$2]}" ]; then
 				# Navigate to bookmark
+				echo "Changing Directory to Bookmark: $2" 1>&2
 				cd -- "${CD_BKM[$2]}"
 			else
 				echo "No such bookmark: $2"
@@ -253,23 +255,27 @@ cd() {
 			if [ ! "$(command -v bd)" ]; then
 				printf "      %-17s %s\n" "" "  unavailable: \"bd\" isn't in \$PATH!"
 			fi
-			printf "      %-17s %s\n" "-d" "Select a directory from the Directory Stack"
-			printf "      %-17s %s\n" "-f [bookmark]" "Select and/or navigate to bookmark"
-			printf "      %-17s %s\n" "" "  OR \"cd %bookmark\" if no dir named \"%bookmark\" exists!"
-			printf "      %-17s %s\n" "-F [bookmark]" "Print bookmark list or path"
-			printf "      %-17s %s\n" "+m <name> [dir]" "Add Bookmark to \$CD_BKM"
-			printf "      %-17s %s\n" "-m <name>" "Remove Bookmark from \$CD_BKM"
-			printf "      %-17s %s\n" "-r" "Ascend to root of the current filesystem/subvolume."
-			printf "      %-17s %s\n" "-R" "Read bookmarks from \$CD_BKM_FILE"
-			printf "      %-17s %s\n" "-s" "Save bookmarks to \$CD_BKM_FILE"
-			printf "      %-17s %s\n" "-u, .. [integer]" "Ascend 1 directory (or more)"
-			printf "      %-17s %s\n" "-?, --help" "Display these help messages."
+			printf "      %-17s %s\n" \
+				"-d"               "Select a directory from the Directory Stack" \
+				"-f [bookmark]"    "Select and/or navigate to bookmark" \
+				""                 "  OR \"cd %bookmark\" if no dir named \"%bookmark\" exists!" \
+				"-F [bookmark]"    "Print bookmark list or path" \
+			 	"+m <name> [dir]"  "Add Bookmark to \$CD_BKM" \
+				"-m <name>"        "Remove Bookmark from \$CD_BKM" \
+				"-r"               "Ascend to root of the current filesystem/subvolume." \
+				"-R"               "Read bookmarks from \$CD_BKM_FILE" \
+				"-s"               "Save bookmarks to \$CD_BKM_FILE" \
+				"-u, .. [integer]" "Ascend 1 directory (or more)" \
+				"-?, --help"       "Display these help messages."
 
 			printf "\n    Super CD Notes:\n" 
-			printf "      * History is tracked using the Directory Stack\n"
-			printf "      * Bookmarks are tracked using \$CD_BKM (An Associative Array)\n"
-			printf "      * Bookmarks are read/saved from/to the file defined by \$CD_BKM_FILE\n"
-			printf "      * Will auto prompt for creation of non-existent directories\n"
+
+			printf "      * %s\n" \
+				"History is tracked using the Directory Stack" \
+				"Bookmarks are tracked using \$CD_BKM (An Associative Array)" \
+				"Bookmarks are read/saved from/to the file defined by \$CD_BKM_FILE" \
+				"Will auto prompt for creation of non-existent directories" \
+				"Will auto convert WINE paths (EG: C:/windows OR %var%/somewhere)"
 				
 				
 			printf "\n    Bookmark File (\$CD_BKM_FILE):\n"
@@ -291,6 +297,38 @@ cd() {
 				[ ! "$nargproc" ] && [[ $x =~ ^-(L|P|e|@)$ ]] && continue
 				dir="$x"
 			done
+
+			# Handle Windows Paths
+			if # If the directory doesn't exist and WINE is installed.
+				[ ! -d "$dir" ] && 
+				command -v wine &>/dev/null
+			then
+				local winedir=${dir//\//\\}
+				local winedir=${winedir//&/\\\&}
+				local wineuser=$(wine cmd /C 'echo %USER%')
+				local WINEPREFIX=${WINEPREFIX:-$HOME/.wine}
+
+				# Simple Path (contians drive letter at start)
+				if [[ ${winedir,,} =~ ^([a-z])+: ]]||[[ $winedir =~ ^%([a-z]|[A-Z])+% ]]; then
+					#echo "Input: $winedir"
+					local tpath=$(wine cmd /C 'cd /d '"$winedir"' && call echo %^cd%' 2>/dev/null)
+					#echo "PATH CHECK: $?"
+					#echo "PATH: $tpath"
+					local tdriveletter=${tpath%%:*}
+					tpath="$WINEPREFIX/dosdevices/${tdriveletter,,}:/${tpath#*:\\}"
+					tpath=${tpath//\\//}  # \ to /
+					tpath=${tpath//$'\r'} # No carriage return
+					if [ ! -d "$tpath" ]; then
+						printf "Non-valid WINE path.\n  %s" "$winedir" 1>&2
+						return 1
+					fi
+					printf "Navigating to WINE path:\n  %s\n  %s" "$winedir" "$tpath" 1>&2
+					cd -L -- "$tpath"
+					return
+					#echo -e "Navigating to WINE path:\n\n  ${WINEPREFIX:-$HOME/.wine}/drive_c/${winedir#*:}"
+					#builtin cd "${WINEPREFIX:-$HOME/.wine}/drive_c/${winedir#*:}"
+				fi
+			fi 
 
 			# Offer to create directory if it doesn't exist
 			if [ "$dir" ]&&[ ! -e "$dir" ]; then
