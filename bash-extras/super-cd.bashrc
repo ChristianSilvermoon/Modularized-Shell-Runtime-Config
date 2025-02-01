@@ -299,35 +299,33 @@ cd() {
 			done
 
 			# Handle Windows Paths
-			if # If the directory doesn't exist and WINE is installed.
-				[ ! -d "$dir" ] && 
+			if # If the directory doesn't exist, it sounds Windowsy, and WINE is installed.
+				[ ! -d "$dir" ] &&
+				{ # Must be "LETTER:" or "%VARIABLE%" style to count as "Windows-y"
+					[[ ${dir,,} =~ ^([a-z])+: ]] ||
+					[[ $dir =~ ^%([a-z]|[A-Z])+% ]]
+				} && 
 				command -v wine &>/dev/null
 			then
 				local winedir=${dir//\//\\}
 				local winedir=${winedir//&/\\\&}
-				local wineuser=$(wine cmd /C 'echo %USER%')
 				local WINEPREFIX=${WINEPREFIX:-$HOME/.wine}
 
 				# Simple Path (contians drive letter at start)
-				if [[ ${winedir,,} =~ ^([a-z])+: ]]||[[ $winedir =~ ^%([a-z]|[A-Z])+% ]]; then
-					#echo "Input: $winedir"
-					local tpath=$(wine cmd /C 'cd /d '"$winedir"' && call echo %^cd%' 2>/dev/null)
-					#echo "PATH CHECK: $?"
-					#echo "PATH: $tpath"
-					local tdriveletter=${tpath%%:*}
-					tpath="$WINEPREFIX/dosdevices/${tdriveletter,,}:/${tpath#*:\\}"
-					tpath=${tpath//\\//}  # \ to /
-					tpath=${tpath//$'\r'} # No carriage return
-					if [ ! -d "$tpath" ]; then
-						printf "Non-valid WINE path.\n  %s" "$winedir" 1>&2
-						return 1
-					fi
-					printf "Navigating to WINE path:\n  %s\n  %s" "$winedir" "$tpath" 1>&2
-					cd -L -- "$tpath"
-					return
-					#echo -e "Navigating to WINE path:\n\n  ${WINEPREFIX:-$HOME/.wine}/drive_c/${winedir#*:}"
-					#builtin cd "${WINEPREFIX:-$HOME/.wine}/drive_c/${winedir#*:}"
+				local tpath=$(wine cmd /C 'cd /d '"$winedir"' && call echo %^cd%' 2>/dev/null)
+				local tdriveletter=${tpath%%:*}
+				tpath="$WINEPREFIX/dosdevices/${tdriveletter,,}:/${tpath#*:\\}"
+				tpath=${tpath//\\//}  # \ to /
+				tpath=${tpath//$'\r'} # No carriage return
+
+				if [ ! -d "$tpath" ]; then
+					printf "Non-valid WINE path.\n  %s" "$winedir" 1>&2
+					return 1
 				fi
+
+				printf "Navigating to WINE path:\n  %s\n  %s" "$winedir" "$tpath" 1>&2	
+				cd -L -- "$tpath"
+				return
 			fi 
 
 			# Offer to create directory if it doesn't exist
